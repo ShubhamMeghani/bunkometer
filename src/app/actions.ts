@@ -6,6 +6,7 @@ import { diffSnapshots, isEmptyDiff } from "@/lib/data/diff";
 import { applyMutation, validateMutation, validateNewSemester } from "@/lib/data/mutations";
 import { LIMITS, mutationSchema, newSemesterSchema } from "@/lib/data/schemas";
 import { countSemesters, insertSemester, loadSnapshot, setActiveSemester, writeDiff } from "@/lib/db/repo";
+import { importTemplate, loadTemplate, publishShare, revokeShare } from "@/lib/db/share";
 import { deleteUser } from "@/lib/db/users";
 import { getCurrentUser, getToday } from "@/lib/server/session";
 
@@ -63,4 +64,35 @@ export async function deleteAccount(confirmation: unknown): Promise<ActionResult
 
 export async function signOutAction(): Promise<void> {
   await signOut({ redirectTo: "/" });
+}
+
+/** SPEC R39: creates (or returns) the active semester's share token. */
+export async function publishShareAction(): Promise<{ ok: true; token: string } | { ok: false; error: string }> {
+  const user = await getCurrentUser();
+  if (!user) return SIGNED_OUT as { ok: false; error: string };
+  if (!user.activeSemesterId) return { ok: false, error: "Not found" };
+  const token = await publishShare(user.id, user.activeSemesterId);
+  return token ? { ok: true, token } : { ok: false, error: "Not found" };
+}
+
+/** SPEC R41: the link stops working; existing imports are untouched. */
+export async function revokeShareAction(): Promise<ActionResult> {
+  const user = await getCurrentUser();
+  if (!user) return SIGNED_OUT;
+  if (!user.activeSemesterId) return { ok: false, error: "Not found" };
+  return (await revokeShare(user.id, user.activeSemesterId)) ? { ok: true } : { ok: false, error: "Not found" };
+}
+
+/** SPEC R40: imports a shared timetable as the user's new active semester. Accepts a token or a full link. */
+export async function importShareAction(tokenOrLink: unknown): Promise<ActionResult> {
+  if (typeof tokenOrLink !== "string") return { ok: false, error: "Paste a share link" };
+  const token = tokenOrLink.trim().replace(/\/+$/, "").split("/").pop() ?? "";
+  const user = await getCurrentUser();
+  if (!user) return SIGNED_OUT;
+  const template = await loadTemplate(token);
+  if (!template) return { ok: false, error: "This link is no longer active" };
+  if ((await countSemesters(user.id)) >= LIMITS.semestersPerUser)
+    return { ok: false, error: `At most ${LIMITS.semestersPerUser} semesters` };
+  await importTemplate(user.id, template);
+  return { ok: true };
 }

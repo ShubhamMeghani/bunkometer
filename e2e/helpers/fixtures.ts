@@ -170,3 +170,7 @@ export async function createFixture(email: string, spec: FixtureSpec): Promise<F
 export async function sessionRowsFor(courseId: string) {
   return testDb().select().from(schema.sessions).where(eq(schema.sessions.courseId, courseId));
 }
+
+export async function setShareToken(semesterId: string, token: string | null) {
+  await testDb().update(schema.semesters).set({ shareToken: token }).where(eq(schema.semesters.id, semesterId));
+}

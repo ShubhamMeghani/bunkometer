@@ -321,7 +321,7 @@ Evidence is filled in when an AC passes, as the test file plus the commit (Unit/
 | AC-15 | Unit | P3 | pass | `tests/unit/validation.test.ts` (11 tests) · P3 commit |
 | AC-16 | Unit | P9 | todo | planned: `tests/unit/demo-seed.test.ts` |
 | AC-17 | Unit | P1 | pass | `tests/unit/api/health.test.ts` (2 tests) · P1 commit |
-| AC-18 | E2E | P8 | todo | planned: `e2e/access.spec.ts` |
+| AC-18 | E2E | P8 | pass | `e2e/access.spec.ts` · P8 commit |
 | AC-19 | E2E | P4 | pass | `e2e/setup.spec.ts` · P4 commit |
 | AC-20 | E2E | P4 | pass | `e2e/today.spec.ts` · P4 commit |
 | AC-21 | E2E | P4 | pass | `e2e/today-empty.spec.ts` · P4 commit (2 tests) |
@@ -334,9 +334,9 @@ Evidence is filled in when an AC passes, as the test file plus the commit (Unit/
 | AC-28 | E2E | P7 | pass | `e2e/bulk.spec.ts` (+ `tests/unit/bulk.test.ts`) · P7 commit |
 | AC-29 | E2E | P6 | pass | `e2e/history.spec.ts` (also checks the R36 trend chart renders) · P6 commit |
 | AC-30 | E2E | P6 | pass | `e2e/csv.spec.ts` · P6 commit |
-| AC-31 | E2E | P8 | todo | planned: `e2e/share.spec.ts` |
+| AC-31 | E2E | P8 | pass | `e2e/share.spec.ts` · P8 commit |
 | AC-32 | E2E | P4 | pass | `e2e/isolation.spec.ts` · P4 commit |
-| AC-33 | E2E | P8 | todo | planned: `e2e/delete-account.spec.ts` |
+| AC-33 | E2E | P8 | pass | `e2e/delete-account.spec.ts` · P8 commit |
 | AC-34 | E2E | P4 | pass | `e2e/semesters.spec.ts` · P4 commit |
 | AC-35 | E2E | P9 | todo | planned: `e2e/demo.spec.ts` |
 | AC-36 | E2E | P10 | todo | planned: `e2e/theme.spec.ts` |

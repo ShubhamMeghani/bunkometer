@@ -1,4 +1,5 @@
-import { createSemester } from "@/app/actions";
+import { createSemester, importShareAction } from "@/app/actions";
+import { ImportLink } from "@/components/ImportLink";
 import { SetupWizard } from "@/components/screens/SetupWizard";
 import { listSemesters } from "@/lib/db/repo";
 import { requireUser } from "@/lib/server/session";
@@ -10,7 +11,11 @@ export default async function SetupPage() {
   const semesters = await listSemesters(user.id);
   return (
     <main className="mx-auto max-w-lg px-4 py-6">
-      <SetupWizard createSemester={createSemester} canCancel={semesters.length > 0} />
+      <SetupWizard
+        createSemester={createSemester}
+        canCancel={semesters.length > 0}
+        importSlot={<ImportLink importAction={importShareAction} />}
+      />
     </main>
   );
 }
