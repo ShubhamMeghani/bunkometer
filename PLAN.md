@@ -315,8 +315,8 @@ Evidence is filled in when an AC passes, as the test file plus the commit (Unit/
 | AC-9 | Unit | P2 | pass | `tests/unit/engine/dates.test.ts`, `purity.test.ts` · P2 commit |
 | AC-10 | Unit | P5 | pass | `tests/unit/engine/trip.test.ts` (6 tests) · P5 commit |
 | AC-11 | Unit | P2 | pass | `tests/unit/engine/labs.test.ts` (4) · P2 commit |
-| AC-12 | Unit | P6 | todo | planned: `tests/unit/engine/stats.test.ts` |
-| AC-13 | Unit | P6 | todo | planned: `tests/unit/engine/csv.test.ts` |
+| AC-12 | Unit | P6 | pass | `tests/unit/engine/stats.test.ts` (3 tests) · P6 commit |
+| AC-13 | Unit | P6 | pass | `tests/unit/engine/csv.test.ts` (4 tests) · P6 commit |
 | AC-14 | Unit | P1 | pass | `tests/unit/auth/test-mode.test.ts` (5 tests) · P1 commit |
 | AC-15 | Unit | P3 | pass | `tests/unit/validation.test.ts` (11 tests) · P3 commit |
 | AC-16 | Unit | P9 | todo | planned: `tests/unit/demo-seed.test.ts` |
@@ -332,8 +332,8 @@ Evidence is filled in when an AC passes, as the test file plus the commit (Unit/
 | AC-26 | E2E | P4 | pass | `e2e/makeups.spec.ts` · P4 commit |
 | AC-27 | E2E | P5 | pass | `e2e/plan.spec.ts` · P5 commit |
 | AC-28 | E2E | P7 | todo | planned: `e2e/bulk.spec.ts` |
-| AC-29 | E2E | P6 | todo | planned: `e2e/history.spec.ts` |
-| AC-30 | E2E | P6 | todo | planned: `e2e/csv.spec.ts` |
+| AC-29 | E2E | P6 | pass | `e2e/history.spec.ts` (also checks the R36 trend chart renders) · P6 commit |
+| AC-30 | E2E | P6 | pass | `e2e/csv.spec.ts` · P6 commit |
 | AC-31 | E2E | P8 | todo | planned: `e2e/share.spec.ts` |
 | AC-32 | E2E | P4 | pass | `e2e/isolation.spec.ts` · P4 commit |
 | AC-33 | E2E | P8 | todo | planned: `e2e/delete-account.spec.ts` |
@@ -363,3 +363,4 @@ Choices made during the build, one line each: date, phase, the choice, and why.
 - 2026-10-22 · P3 · One pure reducer (`src/lib/data/mutations.ts`) serves the optimistic UI, the demo and the server. The server loads the user's own snapshot, validates, applies the reducer and writes only the row diff in one Neon `batch` (a transaction), so a foreign ID can only ever come back as "Not found" (R3).
 - 2026-10-22 · P4 · `/setup` collects dates, courses, slots and holidays locally and saves them in one `createSemester` call, so an abandoned wizard leaves nothing half-saved.
 - 2026-10-22 · P4 · E2E specs wait for the server-action POST (`clickAndSave`) before reloading; saving is optimistic, so a reload mid-request would otherwise race the save.
+- 2026-10-22 · P6 · §4.6 "weeks with H = 0 are skipped" is read as the week's own held count, which is what the AC-12 fixture expects ([80.0, 66.6] with no marks in week 3).

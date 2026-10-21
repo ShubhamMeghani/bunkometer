@@ -1,6 +1,5 @@
-import { requireUser } from "@/lib/server/session";
+import { HistoryScreen } from "@/components/screens/HistoryScreen";
 
-export default async function Page() {
-  await requireUser();
-  return <h1 className="text-2xl font-bold">History</h1>;
+export default function HistoryPage() {
+  return <HistoryScreen />;
 }

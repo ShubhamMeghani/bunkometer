@@ -3,14 +3,16 @@
 import Link from "next/link";
 import { useState } from "react";
 import { formatDayShort } from "@/lib/engine/dates";
+import { weeklyTrend } from "@/lib/engine/stats";
 import { KIND_LABEL, STATUS_LABEL, timeRange } from "@/lib/ui/format";
 import { MakeupList, WindowBlock } from "../attendance";
 import { useData } from "../data/DataProvider";
 import { CourseForm } from "../forms";
+import { TrendChart } from "../TrendChart";
 import { Card, ColourDot, ConfirmSheet, Sheet, StatusChip, btn } from "../ui";
 
 export function CourseDetailScreen({ courseId, children }: { courseId: string; children?: React.ReactNode }) {
-  const { summaries, today, href, run } = useData();
+  const { summaries, today, href, run, snapshot } = useData();
   const [editOpen, setEditOpen] = useState(false);
   const [deleteExtra, setDeleteExtra] = useState<string | null>(null);
   const summary = summaries.find((s) => s.course.id === courseId);
@@ -49,6 +51,12 @@ export function CourseDetailScreen({ courseId, children }: { courseId: string; c
             <WindowBlock budget={w} showLabel />
           </Card>
         ))}
+
+      {hasPercentage && (
+        <Card>
+          <TrendChart points={weeklyTrend(course, summary.sessions, snapshot.semester, today)} requiredPct={course.requiredPct} />
+        </Card>
+      )}
 
       {children}
 
