@@ -1,0 +1,118 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* Design tokens (SPEC §4.9). Dark is the default; both themes are tuned for WCAG AA (R46). */
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0b0d12;
+  --surface: #151922;
+  --surface-2: #1e2430;
+  --border: #2c3442;
+  --text: #eef1f6;
+  --muted: #a6b0c2;
+  --accent: #8b9cff;
+  --accent-text: #0b0d12;
+  --safe: #4ade80;
+  --safe-bg: #12301f;
+  --safe-strong: #4ade80;
+  --safe-on: #052e16;
+  --warn: #fbbf24;
+  --warn-bg: #3a2c0a;
+  --warn-strong: #fbbf24;
+  --warn-on: #2a1d02;
+  --danger: #fb8a8a;
+  --danger-bg: #3d1517;
+  --danger-strong: #f87171;
+  --danger-on: #2b0707;
+  --none: #a6b0c2;
+  --none-bg: #262c38;
+  --medical: #7dd3fc;
+  --medical-strong: #7dd3fc;
+  --medical-on: #062635;
+  --cancel-strong: #c4cad6;
+  --cancel-on: #161a22;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f4f6fa;
+  --surface: #ffffff;
+  --surface-2: #eceff5;
+  --border: #d3d8e3;
+  --text: #121621;
+  --muted: #4a5366;
+  --accent: #3445c8;
+  --accent-text: #ffffff;
+  --safe: #166534;
+  --safe-bg: #dcfce7;
+  --safe-strong: #15803d;
+  --safe-on: #ffffff;
+  --warn: #854d0e;
+  --warn-bg: #fef3c7;
+  --warn-strong: #a16207;
+  --warn-on: #ffffff;
+  --danger: #b91c1c;
+  --danger-bg: #fee2e2;
+  --danger-strong: #b91c1c;
+  --danger-on: #ffffff;
+  --none: #4a5366;
+  --none-bg: #e6e9f0;
+  --medical: #075985;
+  --medical-strong: #0369a1;
+  --medical-on: #ffffff;
+  --cancel-strong: #4a5366;
+  --cancel-on: #ffffff;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--border);
+  --color-ink: var(--text);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-text);
+  --color-safe: var(--safe);
+  --color-safe-bg: var(--safe-bg);
+  --color-warn: var(--warn);
+  --color-warn-bg: var(--warn-bg);
+  --color-danger: var(--danger);
+  --color-danger-bg: var(--danger-bg);
+  --color-none: var(--none);
+  --color-none-bg: var(--none-bg);
+  --color-medical: var(--medical);
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-tap-highlight-color: transparent;
+  min-height: 100dvh;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+dialog::backdrop {
+  background: rgb(0 0 0 / 0.6);
+}

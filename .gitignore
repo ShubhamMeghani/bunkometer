@@ -5,3 +5,9 @@
 !.env.example
 transcript*
 *.log
+next-env.d.ts
+*.tsbuildinfo
+/playwright-report/
+/test-results/
+/blob-report/
+/playwright/.cache/

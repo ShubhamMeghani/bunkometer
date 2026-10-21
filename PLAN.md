@@ -2,10 +2,10 @@
 
 | | |
 |---|---|
-| Spec | [SPEC.md **v0.2**](SPEC.md) (commit `b67f974`). SPEC says *what* to build; this plan says *in what order and how it is checked*. |
+| Spec | [SPEC.md **v0.3**](SPEC.md). SPEC says *what* to build; this plan says *in what order and how it is checked*. |
 | Repo | https://github.com/ShubhamMeghani/bunkometer (branch `main`) |
 | Production URL | _TBD. Filled in after H3._ |
-| Status legend | `todo` · `pass` · `fail` · `blocked (human)` |
+| Status legend | `todo` · `pass` · `fail` · `Pending (human)` |
 
 ## Stack
 
@@ -18,7 +18,7 @@
 | Database | Neon Postgres through `@neondatabase/serverless` (HTTP), Drizzle ORM, drizzle-kit migrations |
 | Validation | zod |
 | Tests | Vitest (unit, `tests/unit/`), Playwright and `@axe-core/playwright` (E2E, `e2e/`) |
-| Hosting and CI | Vercel Hobby, with the function region matched to Neon. GitHub Actions on `ubuntu-24.04`. |
+| Hosting and CI | Vercel Hobby, default function region `iad1` (next to Neon `us-east-1`). GitHub Actions on `ubuntu-24.04`. |
 | Database branches | Production uses `main`. Preview deployments, local development and E2E use `dev` (SPEC C11). |
 
 ## Commands
@@ -38,7 +38,7 @@ Run one test file with `npx vitest run tests/unit/engine/budget.test.ts` or `npx
 
 ## Rules for the autonomous build
 
-1. **SPEC.md v0.2 is the source of truth.** Build what its requirements and ACs say, and nothing extra. Every task below cites the `R#` / `AC-#` it serves.
+1. **SPEC.md (v0.3) is the source of truth.** Build what its requirements and ACs say, and nothing extra. Every task below cites the `R#` / `AC-#` it serves.
 2. **One commit per phase.** Commit only when all of these hold:
    - every "Done when" AC for the phase passes;
    - `npm run check` is green;
@@ -66,7 +66,7 @@ Run one test file with `npx vitest run tests/unit/engine/budget.test.ts` or `npx
    - do not edit SPEC.md without approval.
    
    For every other ambiguity, make the smallest reasonable choice, record it in one line under [Build notes](#build-notes), and carry on.
-6. **Don't wait for people.** If a [HUMAN] step isn't done, mark the ACs that depend on it `blocked (human)` and move to the next phase. Phases P2–P11 need only this machine and the Neon `dev` branch.
+6. **Don't wait for people.** If a [HUMAN] step isn't done, mark the ACs that depend on it `Pending (human)` and move to the next phase. Phases P2–P11 need only this machine and the Neon `dev` branch.
 7. **Tests first for logic.** For engine code (P2, P5, P6, P7, P9 seed):
    - write the unit tests from SPEC's worked numbers first;
    - see them fail;
@@ -101,7 +101,7 @@ History (P6) comes before bulk marking (P7) because "Mark a range" lives on the 
 These are the only steps you need to do: **H1–H2 before the build starts**, **H3–H5 after the Phase 1 commit**, and **H6 at the end**. Never paste a secret into chat.
 
 ### H1. Neon (before P1, about 5 min)
-1. At https://console.neon.tech, create a project called `bunkometer` in **AWS Asia Pacific (Singapore)**, or the region closest to India that is offered.
+1. At https://console.neon.tech, create a project called `bunkometer`. (Done: the project is in **AWS US East 1, N. Virginia**.)
 2. Its default branch is the production branch. Neon may call it `main` or `production`; this plan calls it **main**.
 3. Under **Branches**, create a branch called **`dev`** from main.
 4. For **each** branch, open **Connect**, turn on **Connection pooling**, and copy the connection string. The host contains `-pooler` and the string ends with `sslmode=require`. Keep both strings private.
@@ -129,8 +129,7 @@ Leave the two Google values empty until H4. Do **not** add `E2E_TEST_AUTH`; Play
    | `DATABASE_URL` | **dev** pooled URL | Preview only |
    | `AUTH_SECRET` | a new `openssl rand -base64 32` value | Production + Preview |
 
-4. In **Settings → Functions → Function Region**, choose the region next to your Neon region (Singapore → `sin1`).
-5. Under **Deployments**, redeploy the latest deployment. Note the production domain (for example `https://bunkometer.vercel.app`).
+4. Under **Deployments**, redeploy the latest deployment. Note the production domain (for example `https://bunkometer.vercel.app`).
 
 ### H4. Google OAuth client (after H3, about 10 min)
 1. At https://console.cloud.google.com, create a project called `bunkometer`.
@@ -318,10 +317,10 @@ Evidence is filled in when an AC passes, as the test file plus the commit (Unit/
 | AC-11 | Unit | P2 | todo | planned: `tests/unit/engine/labs.test.ts` |
 | AC-12 | Unit | P6 | todo | planned: `tests/unit/engine/stats.test.ts` |
 | AC-13 | Unit | P6 | todo | planned: `tests/unit/engine/csv.test.ts` |
-| AC-14 | Unit | P1 | todo | planned: `tests/unit/auth/test-mode.test.ts` |
+| AC-14 | Unit | P1 | pass | `tests/unit/auth/test-mode.test.ts` (5 tests) · P1 commit |
 | AC-15 | Unit | P3 | todo | planned: `tests/unit/validation.test.ts` |
 | AC-16 | Unit | P9 | todo | planned: `tests/unit/demo-seed.test.ts` |
-| AC-17 | Unit | P1 | todo | planned: `tests/unit/api/health.test.ts` |
+| AC-17 | Unit | P1 | pass | `tests/unit/api/health.test.ts` (2 tests) · P1 commit |
 | AC-18 | E2E | P8 | todo | planned: `e2e/access.spec.ts` |
 | AC-19 | E2E | P4 | todo | planned: `e2e/setup.spec.ts` |
 | AC-20 | E2E | P4 | todo | planned: `e2e/today.spec.ts` |
@@ -345,9 +344,9 @@ Evidence is filled in when an AC passes, as the test file plus the commit (Unit/
 | AC-38 | E2E | P10 | todo | planned: `e2e/a11y.spec.ts` |
 | AC-39 | E2E | P10 | todo | planned: `e2e/pwa.spec.ts` |
 | AC-40 | E2E | P11 | todo | planned: `e2e/bundle-scan.spec.ts` |
-| AC-41 | Deploy | P1 (re-checked P12) | todo | planned: `curl` output against the production URL |
-| AC-42 | Deploy | P1 (re-checked P12) | todo | planned: `curl` output of `/api/auth/providers` |
-| AC-43 | Deploy | P1 (re-checked P12) | todo | planned: CI run URL on `main` |
+| AC-41 | Deploy | P1 (re-checked P12) | Pending (human) | Needs H3 (Vercel deploy). Local `/api/health` 200 verified in `e2e/p1-smoke.spec.ts`. |
+| AC-42 | Deploy | P1 (re-checked P12) | Pending (human) | Needs H3 (Vercel deploy). Unit side covered by AC-14. |
+| AC-43 | Deploy | P1 (re-checked P12) | Pending (human) | Needs H3 push; `.github/workflows/ci.yml` added, `npm run check` green locally. |
 | AC-44 | Manual | P12 | todo | planned: owner report (date, devices, accounts) |
 | AC-45 | Manual | P12 | todo | planned: owner report (device, browser) |
 | AC-46 | Unit | P2 | todo | planned: `tests/unit/engine/cant-recover.test.ts` |
@@ -356,4 +355,7 @@ Evidence is filled in when an AC passes, as the test file plus the commit (Unit/
 
 Choices made during the build, one line each: date, phase, the choice, and why.
 
-- _none yet_
+- 2026-10-22 · P1 · TypeScript pinned to 6.0.3 (not 7.x): `typescript-eslint` supports `<6.1`. ESLint pinned to 9.39.5 for the same reason.
+- 2026-10-22 · P1 · Added `@next/env` (16.4.2, ships with Next.js) as a dev dependency so drizzle-kit and the Playwright fixtures load `.env.local` without Claude reading it.
+- 2026-10-22 · P1 · No `proxy.ts`: every signed-in page and action calls `requireUser()` on the server, which also signs out sessions of deleted users (R1, R6). Auth.js runs on the Node runtime only.
+- 2026-10-22 · P1 · Neon project is in AWS US East 1, so Vercel keeps its default function region `iad1`; the `sin1` step was removed from H3 (SPEC v0.3, D8).

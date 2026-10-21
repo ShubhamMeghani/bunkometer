@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Version | 0.2 (open questions resolved; build plan in [PLAN.md](PLAN.md)) |
+| Version | 0.3 (open questions resolved; build plan in [PLAN.md](PLAN.md)) |
 | Date | 2026-10-22 |
 | Owner | Shubham Meghani |
 | Builder | Claude Code, working mostly autonomously, ~1–2 days |
@@ -802,7 +802,7 @@ Phase 1 deploys the walking skeleton before any features are built, so these ris
 | D5 | Wrong host or URL detection | Callback goes to the wrong host, or `UntrustedHost` locally under `next start` | Do not set `AUTH_URL` on Vercel. Set `trustHost: true` in the Auth.js config, because local production-mode E2E needs it. | AC-19, AC-44 |
 | D6 | Neon connection problems on serverless | Timeouts or "too many connections" | Use Neon's **pooled** connection string (`-pooler` host, `sslmode=require`) with the `@neondatabase/serverless` HTTP driver. Create the client lazily, never at import time. | AC-41 |
 | D7 | Neon free tier scales to zero when idle | The first request after idle is slow (around 1 s or more) | Accepted. Pages show loading skeletons. The health check allows a 10 s timeout. | AC-41 |
-| D8 | Vercel function region far from the database region | Every query crosses continents, so pages are slow | Pick the Neon region closest to India (for example AWS Singapore, `ap-southeast-1`). Set the Vercel function region to match (for example `sin1`). | AC-41 (latency noted) |
+| D8 | Vercel function region far from the database region | Every query crosses continents, so pages are slow | The Neon project is in AWS US East 1 (N. Virginia, `us-east-1`), so keep Vercel's default function region `iad1` (Washington, D.C.), which sits next to it. Users in India pay one long round trip per page, not one per query. | AC-41 (latency noted) |
 | D9 | Migrations not applied, or applied to the wrong branch | 500 errors: `relation "users" does not exist`, or production schema changed by a preview | A `vercel-build` script runs `drizzle-kit migrate` and then `next build`, against that environment's own `DATABASE_URL` (Production → `main`, Preview → `dev`). Locally, `npm run db:migrate` targets `dev` via `.env.local`. Migrations are additive only. `/api/health` queries `users`, so a missing migration fails the check. | AC-41 |
 | D10 | DB or auth code runs at build time or in edge middleware | `next build` fails in CI or on Vercel, or edge runtime errors | Mark DB-backed pages as dynamic. Keep an edge-safe `auth.config.ts` for middleware/proxy, with no DB import. CI builds without secrets. | AC-43 |
 | D11 | A secret leaks into the client bundle | A key is visible in the JavaScript | Never use a `NEXT_PUBLIC_` prefix for secrets. Import the DB only in `server-only` modules. | AC-40 |
@@ -885,3 +885,4 @@ All twelve proposed defaults were accepted on 2026-10-22. OQ-6 and OQ-11 have ad
 |---|---|---|
 | v0.1 | 2026-10-22 | Initial draft |
 | v0.2 | 2026-10-22 | Accepted OQ-1–OQ-12 as decisions. OQ-6: rule c headline is now `Can't recover in this window · best X%`; added E14 and AC-46. OQ-11: Preview, local and E2E use the Neon `dev` branch, only Production uses `main`; migrations run per environment (C11, D9, owner checklist). Phase breakdown and AC phases moved to PLAN.md (C12, §6). |
+| v0.3 | 2026-10-22 | Region correction: the Neon project is in AWS US East 1, so Vercel keeps its default function region `iad1` (D8). No requirement or AC changed. |
