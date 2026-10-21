@@ -319,7 +319,7 @@ Evidence is filled in when an AC passes, as the test file plus the commit (Unit/
 | AC-13 | Unit | P6 | pass | `tests/unit/engine/csv.test.ts` (4 tests) · P6 commit |
 | AC-14 | Unit | P1 | pass | `tests/unit/auth/test-mode.test.ts` (5 tests) · P1 commit |
 | AC-15 | Unit | P3 | pass | `tests/unit/validation.test.ts` (11 tests) · P3 commit |
-| AC-16 | Unit | P9 | todo | planned: `tests/unit/demo-seed.test.ts` |
+| AC-16 | Unit | P9 | pass | `tests/unit/demo-seed.test.ts` (9 tests) · P9 commit |
 | AC-17 | Unit | P1 | pass | `tests/unit/api/health.test.ts` (2 tests) · P1 commit |
 | AC-18 | E2E | P8 | pass | `e2e/access.spec.ts` · P8 commit |
 | AC-19 | E2E | P4 | pass | `e2e/setup.spec.ts` · P4 commit |
@@ -338,7 +338,7 @@ Evidence is filled in when an AC passes, as the test file plus the commit (Unit/
 | AC-32 | E2E | P4 | pass | `e2e/isolation.spec.ts` · P4 commit |
 | AC-33 | E2E | P8 | pass | `e2e/delete-account.spec.ts` · P8 commit |
 | AC-34 | E2E | P4 | pass | `e2e/semesters.spec.ts` · P4 commit |
-| AC-35 | E2E | P9 | todo | planned: `e2e/demo.spec.ts` |
+| AC-35 | E2E | P9 | pass | `e2e/demo.spec.ts` · P9 commit |
 | AC-36 | E2E | P10 | todo | planned: `e2e/theme.spec.ts` |
 | AC-37 | E2E | P10 | todo | planned: `e2e/mobile.spec.ts` |
 | AC-38 | E2E | P10 | todo | planned: `e2e/a11y.spec.ts` |
