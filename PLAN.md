@@ -313,7 +313,7 @@ Evidence is filled in when an AC passes, as the test file plus the commit (Unit/
 | AC-7 | Unit | P2 | pass | `tests/unit/engine/edges.test.ts` (3) · P2 commit |
 | AC-8 | Unit | P2 | pass | `tests/unit/engine/sessions.test.ts` (4) · P2 commit |
 | AC-9 | Unit | P2 | pass | `tests/unit/engine/dates.test.ts`, `purity.test.ts` · P2 commit |
-| AC-10 | Unit | P5 | todo | planned: `tests/unit/engine/trip.test.ts` |
+| AC-10 | Unit | P5 | pass | `tests/unit/engine/trip.test.ts` (6 tests) · P5 commit |
 | AC-11 | Unit | P2 | pass | `tests/unit/engine/labs.test.ts` (4) · P2 commit |
 | AC-12 | Unit | P6 | todo | planned: `tests/unit/engine/stats.test.ts` |
 | AC-13 | Unit | P6 | todo | planned: `tests/unit/engine/csv.test.ts` |
@@ -330,7 +330,7 @@ Evidence is filled in when an AC passes, as the test file plus the commit (Unit/
 | AC-24 | E2E | P4 | pass | `e2e/settings.spec.ts` · P4 commit (2 tests) |
 | AC-25 | E2E | P4 | pass | `e2e/courses.spec.ts` · P4 commit |
 | AC-26 | E2E | P4 | pass | `e2e/makeups.spec.ts` · P4 commit |
-| AC-27 | E2E | P5 | todo | planned: `e2e/plan.spec.ts` |
+| AC-27 | E2E | P5 | pass | `e2e/plan.spec.ts` · P5 commit |
 | AC-28 | E2E | P7 | todo | planned: `e2e/bulk.spec.ts` |
 | AC-29 | E2E | P6 | todo | planned: `e2e/history.spec.ts` |
 | AC-30 | E2E | P6 | todo | planned: `e2e/csv.spec.ts` |

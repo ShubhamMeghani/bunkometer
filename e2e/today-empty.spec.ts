@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { Users } from "./helpers/app";
+import { Users, clickAndSave } from "./helpers/app";
 import { setToday } from "./helpers/auth";
 
 // AC-21 (R17, R20): reasons for an empty day, and the "classes need marking" prompt.
@@ -46,7 +46,7 @@ test("2 past sessions unmarked → prompt; marking both removes it", async ({ pa
   await prompt.click();
   const list = page.locator("section", { has: prompt });
   for (let i = 0; i < 2; i++) {
-    await list.getByTestId("session").first().getByRole("button", { name: "Present", exact: true }).click();
+    await clickAndSave(page, list.getByTestId("session").first().getByRole("button", { name: "Present", exact: true }));
     if (i === 0) await expect(prompt).toHaveText("1 class needs marking");
   }
   await expect(page.getByTestId("unmarked-prompt")).toHaveCount(0);

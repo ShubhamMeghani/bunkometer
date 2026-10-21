@@ -1,6 +1,5 @@
-import { requireUser } from "@/lib/server/session";
+import { PlanScreen } from "@/components/screens/PlanScreen";
 
-export default async function Page() {
-  await requireUser();
-  return <h1 className="text-2xl font-bold">Plan</h1>;
+export default function PlanPage() {
+  return <PlanScreen />;
 }
