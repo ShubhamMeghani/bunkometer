@@ -318,7 +318,7 @@ Evidence is filled in when an AC passes, as the test file plus the commit (Unit/
 | AC-12 | Unit | P6 | todo | planned: `tests/unit/engine/stats.test.ts` |
 | AC-13 | Unit | P6 | todo | planned: `tests/unit/engine/csv.test.ts` |
 | AC-14 | Unit | P1 | pass | `tests/unit/auth/test-mode.test.ts` (5 tests) · P1 commit |
-| AC-15 | Unit | P3 | todo | planned: `tests/unit/validation.test.ts` |
+| AC-15 | Unit | P3 | pass | `tests/unit/validation.test.ts` (11 tests) · P3 commit |
 | AC-16 | Unit | P9 | todo | planned: `tests/unit/demo-seed.test.ts` |
 | AC-17 | Unit | P1 | pass | `tests/unit/api/health.test.ts` (2 tests) · P1 commit |
 | AC-18 | E2E | P8 | todo | planned: `e2e/access.spec.ts` |
@@ -360,3 +360,4 @@ Choices made during the build, one line each: date, phase, the choice, and why.
 - 2026-10-22 · P1 · No `proxy.ts`: every signed-in page and action calls `requireUser()` on the server, which also signs out sessions of deleted users (R1, R6). Auth.js runs on the Node runtime only.
 - 2026-10-22 · P1 · Neon project is in AWS US East 1, so Vercel keeps its default function region `iad1`; the `sin1` step was removed from H3 (SPEC v0.3, D8).
 - 2026-10-22 · P2 · AC-7 "every window shows Final" assumes each window has held classes; a window with H + R = 0 follows rule a (`No classes in this window`), as §4.4.4 defines. The test fixture gives both split windows held classes.
+- 2026-10-22 · P3 · One pure reducer (`src/lib/data/mutations.ts`) serves the optimistic UI, the demo and the server. The server loads the user's own snapshot, validates, applies the reducer and writes only the row diff in one Neon `batch` (a transaction), so a foreign ID can only ever come back as "Not found" (R3).
