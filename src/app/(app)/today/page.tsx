@@ -1,8 +1,5 @@
-import { redirect } from "next/navigation";
-import { requireUser } from "@/lib/server/session";
+import { TodayScreen } from "@/components/screens/TodayScreen";
 
-export default async function TodayPage() {
-  const user = await requireUser();
-  if (!user.activeSemesterId) redirect("/setup");
-  return <h1 className="text-2xl font-bold">Today</h1>;
+export default function TodayPage() {
+  return <TodayScreen />;
 }

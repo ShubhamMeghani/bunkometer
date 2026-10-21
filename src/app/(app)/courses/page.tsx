@@ -1,6 +1,5 @@
-import { requireUser } from "@/lib/server/session";
+import { CoursesScreen } from "@/components/screens/CoursesScreen";
 
-export default async function Page() {
-  await requireUser();
-  return <h1 className="text-2xl font-bold">Courses</h1>;
+export default function CoursesPage() {
+  return <CoursesScreen />;
 }

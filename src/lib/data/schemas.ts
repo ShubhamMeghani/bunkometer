@@ -68,7 +68,7 @@ export const courseSchema = z.object({
   id: idSchema,
   code: z.string().trim().min(1, "Enter a course code").max(16, "At most 16 characters"),
   name: z.string().trim().min(1, "Enter a course name").max(80, "At most 80 characters"),
-  colour: z.enum(COLOURS),
+  colour: z.string().refine((c) => (COLOURS as readonly string[]).includes(c), "Pick a colour"),
   requiredPct: z.number().int("Use a whole number").min(0, "0–100").max(100, "0–100"),
   countTutorials: z.boolean(),
   medicalCap: z.number().int("Use a whole number").min(0, "0–99").max(99, "0–99").nullable(),

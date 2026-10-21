@@ -322,22 +322,22 @@ Evidence is filled in when an AC passes, as the test file plus the commit (Unit/
 | AC-16 | Unit | P9 | todo | planned: `tests/unit/demo-seed.test.ts` |
 | AC-17 | Unit | P1 | pass | `tests/unit/api/health.test.ts` (2 tests) · P1 commit |
 | AC-18 | E2E | P8 | todo | planned: `e2e/access.spec.ts` |
-| AC-19 | E2E | P4 | todo | planned: `e2e/setup.spec.ts` |
-| AC-20 | E2E | P4 | todo | planned: `e2e/today.spec.ts` |
-| AC-21 | E2E | P4 | todo | planned: `e2e/today-empty.spec.ts` |
-| AC-22 | E2E | P4 | todo | planned: `e2e/extra-class.spec.ts` |
-| AC-23 | E2E | P4 | todo | planned: `e2e/save-failure.spec.ts` |
-| AC-24 | E2E | P4 | todo | planned: `e2e/settings.spec.ts` |
-| AC-25 | E2E | P4 | todo | planned: `e2e/courses.spec.ts` |
-| AC-26 | E2E | P4 | todo | planned: `e2e/makeups.spec.ts` |
+| AC-19 | E2E | P4 | pass | `e2e/setup.spec.ts` · P4 commit |
+| AC-20 | E2E | P4 | pass | `e2e/today.spec.ts` · P4 commit |
+| AC-21 | E2E | P4 | pass | `e2e/today-empty.spec.ts` · P4 commit (2 tests) |
+| AC-22 | E2E | P4 | pass | `e2e/extra-class.spec.ts` · P4 commit (2 tests) |
+| AC-23 | E2E | P4 | pass | `e2e/save-failure.spec.ts` · P4 commit |
+| AC-24 | E2E | P4 | pass | `e2e/settings.spec.ts` · P4 commit (2 tests) |
+| AC-25 | E2E | P4 | pass | `e2e/courses.spec.ts` · P4 commit |
+| AC-26 | E2E | P4 | pass | `e2e/makeups.spec.ts` · P4 commit |
 | AC-27 | E2E | P5 | todo | planned: `e2e/plan.spec.ts` |
 | AC-28 | E2E | P7 | todo | planned: `e2e/bulk.spec.ts` |
 | AC-29 | E2E | P6 | todo | planned: `e2e/history.spec.ts` |
 | AC-30 | E2E | P6 | todo | planned: `e2e/csv.spec.ts` |
 | AC-31 | E2E | P8 | todo | planned: `e2e/share.spec.ts` |
-| AC-32 | E2E | P4 | todo | planned: `e2e/isolation.spec.ts` |
+| AC-32 | E2E | P4 | pass | `e2e/isolation.spec.ts` · P4 commit |
 | AC-33 | E2E | P8 | todo | planned: `e2e/delete-account.spec.ts` |
-| AC-34 | E2E | P4 | todo | planned: `e2e/semesters.spec.ts` |
+| AC-34 | E2E | P4 | pass | `e2e/semesters.spec.ts` · P4 commit |
 | AC-35 | E2E | P9 | todo | planned: `e2e/demo.spec.ts` |
 | AC-36 | E2E | P10 | todo | planned: `e2e/theme.spec.ts` |
 | AC-37 | E2E | P10 | todo | planned: `e2e/mobile.spec.ts` |
@@ -361,3 +361,5 @@ Choices made during the build, one line each: date, phase, the choice, and why.
 - 2026-10-22 · P1 · Neon project is in AWS US East 1, so Vercel keeps its default function region `iad1`; the `sin1` step was removed from H3 (SPEC v0.3, D8).
 - 2026-10-22 · P2 · AC-7 "every window shows Final" assumes each window has held classes; a window with H + R = 0 follows rule a (`No classes in this window`), as §4.4.4 defines. The test fixture gives both split windows held classes.
 - 2026-10-22 · P3 · One pure reducer (`src/lib/data/mutations.ts`) serves the optimistic UI, the demo and the server. The server loads the user's own snapshot, validates, applies the reducer and writes only the row diff in one Neon `batch` (a transaction), so a foreign ID can only ever come back as "Not found" (R3).
+- 2026-10-22 · P4 · `/setup` collects dates, courses, slots and holidays locally and saves them in one `createSemester` call, so an abandoned wizard leaves nothing half-saved.
+- 2026-10-22 · P4 · E2E specs wait for the server-action POST (`clickAndSave`) before reloading; saving is optimistic, so a reload mid-request would otherwise race the save.
