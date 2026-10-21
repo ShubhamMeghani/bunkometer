@@ -304,17 +304,17 @@ Evidence is filled in when an AC passes, as the test file plus the commit (Unit/
 
 | ID | Type | Phase | Status | Evidence |
 |---|---|---|---|---|
-| AC-1 | Unit | P2 | todo | planned: `tests/unit/engine/budget.test.ts` |
-| AC-2 | Unit | P2 | todo | planned: `tests/unit/engine/budget.sweep.test.ts` |
-| AC-3 | Unit | P2 | todo | planned: `tests/unit/engine/format.test.ts` |
-| AC-4 | Unit | P2 | todo | planned: `tests/unit/engine/medical.test.ts` |
-| AC-5 | Unit | P2 | todo | planned: `tests/unit/engine/countable.test.ts` |
-| AC-6 | Unit | P2 | todo | planned: `tests/unit/engine/windows.test.ts` |
-| AC-7 | Unit | P2 | todo | planned: `tests/unit/engine/edges.test.ts` |
-| AC-8 | Unit | P2 | todo | planned: `tests/unit/engine/sessions.test.ts` |
-| AC-9 | Unit | P2 | todo | planned: `tests/unit/engine/dates.test.ts`, `purity.test.ts` |
+| AC-1 | Unit | P2 | pass | `tests/unit/engine/budget.test.ts` (15 tests) · P2 commit |
+| AC-2 | Unit | P2 | pass | `tests/unit/engine/budget.sweep.test.ts` (92,256 cases) · P2 commit |
+| AC-3 | Unit | P2 | pass | `tests/unit/engine/format.test.ts` (5) + integer check in the sweep · P2 commit |
+| AC-4 | Unit | P2 | pass | `tests/unit/engine/medical.test.ts` (4) · P2 commit |
+| AC-5 | Unit | P2 | pass | `tests/unit/engine/countable.test.ts` (6) · P2 commit |
+| AC-6 | Unit | P2 | pass | `tests/unit/engine/windows.test.ts` (3) · P2 commit |
+| AC-7 | Unit | P2 | pass | `tests/unit/engine/edges.test.ts` (3) · P2 commit |
+| AC-8 | Unit | P2 | pass | `tests/unit/engine/sessions.test.ts` (4) · P2 commit |
+| AC-9 | Unit | P2 | pass | `tests/unit/engine/dates.test.ts`, `purity.test.ts` · P2 commit |
 | AC-10 | Unit | P5 | todo | planned: `tests/unit/engine/trip.test.ts` |
-| AC-11 | Unit | P2 | todo | planned: `tests/unit/engine/labs.test.ts` |
+| AC-11 | Unit | P2 | pass | `tests/unit/engine/labs.test.ts` (4) · P2 commit |
 | AC-12 | Unit | P6 | todo | planned: `tests/unit/engine/stats.test.ts` |
 | AC-13 | Unit | P6 | todo | planned: `tests/unit/engine/csv.test.ts` |
 | AC-14 | Unit | P1 | pass | `tests/unit/auth/test-mode.test.ts` (5 tests) · P1 commit |
@@ -349,7 +349,7 @@ Evidence is filled in when an AC passes, as the test file plus the commit (Unit/
 | AC-43 | Deploy | P1 (re-checked P12) | Pending (human) | Needs H3 push; `.github/workflows/ci.yml` added, `npm run check` green locally. |
 | AC-44 | Manual | P12 | todo | planned: owner report (date, devices, accounts) |
 | AC-45 | Manual | P12 | todo | planned: owner report (device, browser) |
-| AC-46 | Unit | P2 | todo | planned: `tests/unit/engine/cant-recover.test.ts` |
+| AC-46 | Unit | P2 | pass | `tests/unit/engine/cant-recover.test.ts` (3) · P2 commit |
 
 ## Build notes
 
@@ -359,3 +359,4 @@ Choices made during the build, one line each: date, phase, the choice, and why.
 - 2026-10-22 · P1 · Added `@next/env` (16.4.2, ships with Next.js) as a dev dependency so drizzle-kit and the Playwright fixtures load `.env.local` without Claude reading it.
 - 2026-10-22 · P1 · No `proxy.ts`: every signed-in page and action calls `requireUser()` on the server, which also signs out sessions of deleted users (R1, R6). Auth.js runs on the Node runtime only.
 - 2026-10-22 · P1 · Neon project is in AWS US East 1, so Vercel keeps its default function region `iad1`; the `sin1` step was removed from H3 (SPEC v0.3, D8).
+- 2026-10-22 · P2 · AC-7 "every window shows Final" assumes each window has held classes; a window with H + R = 0 follows rule a (`No classes in this window`), as §4.4.4 defines. The test fixture gives both split windows held classes.
