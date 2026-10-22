@@ -339,10 +339,10 @@ Evidence is filled in when an AC passes, as the test file plus the commit (Unit/
 | AC-33 | E2E | P8 | pass | `e2e/delete-account.spec.ts` · P8 commit |
 | AC-34 | E2E | P4 | pass | `e2e/semesters.spec.ts` · P4 commit |
 | AC-35 | E2E | P9 | pass | `e2e/demo.spec.ts` · P9 commit |
-| AC-36 | E2E | P10 | todo | planned: `e2e/theme.spec.ts` |
-| AC-37 | E2E | P10 | todo | planned: `e2e/mobile.spec.ts` |
-| AC-38 | E2E | P10 | todo | planned: `e2e/a11y.spec.ts` |
-| AC-39 | E2E | P10 | todo | planned: `e2e/pwa.spec.ts` |
+| AC-36 | E2E | P10 | pass | `e2e/theme.spec.ts` (3 tests) · P10 commit |
+| AC-37 | E2E | P10 | pass | `e2e/mobile.spec.ts` (2 tests) · P10 commit |
+| AC-38 | E2E | P10 | pass | `e2e/a11y.spec.ts` (9 pages × 2 themes) · P10 commit |
+| AC-39 | E2E | P10 | pass | `e2e/pwa.spec.ts` (2 tests) · P10 commit |
 | AC-40 | E2E | P11 | todo | planned: `e2e/bundle-scan.spec.ts` |
 | AC-41 | Deploy | P1 (re-checked P12) | Pending (human) | Needs H3 (Vercel deploy). Local `/api/health` 200 verified in `e2e/p1-smoke.spec.ts`. |
 | AC-42 | Deploy | P1 (re-checked P12) | Pending (human) | Needs H3 (Vercel deploy). Unit side covered by AC-14. |
@@ -365,3 +365,5 @@ Choices made during the build, one line each: date, phase, the choice, and why.
 - 2026-10-22 · P4 · E2E specs wait for the server-action POST (`clickAndSave`) before reloading; saving is optimistic, so a reload mid-request would otherwise race the save.
 - 2026-10-22 · P6 · §4.6 "weeks with H = 0 are skipped" is read as the week's own held count, which is what the AC-12 fixture expects ([80.0, 66.6] with no marks in week 3).
 - 2026-10-22 · P7 · The bulk preview's "overwritten" count is existing marks whose status would change (a Medical mark re-marked Medical isn't counted).
+- 2026-10-22 · P10 · App icons are PNGs rendered at build time by `next/og` route handlers (`/icons/*.png`), so no image tooling or extra dependency is needed.
+- 2026-10-22 · P10 · The service worker caches pages network-first and hashed assets cache-first, never `/api/*` or POSTs; sign-out and account deletion clear the page cache.

@@ -1,10 +1,14 @@
 import type { Metadata, Viewport } from "next";
+import { ServiceWorker } from "@/components/ServiceWorker";
+import { ThemeSync } from "@/components/Theme";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Bunk-o-Meter",
   description: "Know exactly how many classes you can skip.",
   applicationName: "Bunk-o-Meter",
+  appleWebApp: { capable: true, title: "Bunk-o-Meter", statusBarStyle: "black-translucent" },
+  icons: { icon: "/icons/icon-192.png", apple: "/icons/icon-192.png" },
 };
 
 export const viewport: Viewport = {
@@ -23,7 +27,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        {children}
+        <ThemeSync />
+        <ServiceWorker />
+      </body>
     </html>
   );
 }

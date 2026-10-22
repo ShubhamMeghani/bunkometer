@@ -20,12 +20,7 @@ function SessionList({ sessions, byId, showDate = false }: { sessions: Session[]
       {sessions.map((s) => {
         const summary = byId.get(s.courseId);
         if (!summary) return null;
-        return (
-          <div key={s.key}>
-            {showDate && <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted">{formatDayShort(s.date)}</p>}
-            <SessionCard session={s} summary={summary} />
-          </div>
-        );
+        return <SessionCard key={s.key} session={s} summary={summary} label={showDate ? formatDayShort(s.date) : undefined} />;
       })}
     </ul>
   );

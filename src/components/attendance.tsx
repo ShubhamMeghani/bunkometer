@@ -66,7 +66,7 @@ export function labLine(summary: CourseSummary): string {
 }
 
 /** A class on Today or in a day editor: course, time, kind, the course's headline and the mark control. */
-export function SessionCard({ session, summary }: { session: Session; summary: CourseSummary }) {
+export function SessionCard({ session, summary, label }: { session: Session; summary: CourseSummary; label?: string }) {
   const { course } = summary;
   const counted = session.kind === "lecture" || (session.kind === "tutorial" && course.countTutorials);
   const line =
@@ -77,6 +77,7 @@ export function SessionCard({ session, summary }: { session: Session; summary: C
         : "Tutorials don't count for this course";
   return (
     <li data-testid="session" data-course={course.code} data-date={session.date} data-kind={session.kind}>
+      {label && <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted">{label}</p>}
       <Card className="space-y-3">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">

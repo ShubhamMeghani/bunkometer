@@ -9,6 +9,8 @@ import { formatDayShort } from "@/lib/engine/dates";
 import type { Course, NoClassPeriod, Slot } from "@/lib/engine/types";
 import { KIND_LABEL, WEEKDAY_NAMES, plural, timeRange } from "@/lib/ui/format";
 import { useData } from "../data/DataProvider";
+import { clearPageCache } from "../ServiceWorker";
+import { ThemeToggle } from "../Theme";
 import { CourseForm, PeriodForm, SemesterForm, SlotForm } from "../forms";
 import { Card, ColourDot, ConfirmSheet, Sheet, btn, inputClass } from "../ui";
 
@@ -235,6 +237,15 @@ export function SettingsScreen({ account, extra }: { account?: AccountActions; e
         </Card>
       </section>
 
+      <section className="space-y-2" aria-labelledby="look-h">
+        <h2 id="look-h" className="text-lg font-bold">
+          Appearance
+        </h2>
+        <Card>
+          <ThemeToggle />
+        </Card>
+      </section>
+
       {extra}
 
       {mode === "server" && account && (
@@ -243,7 +254,7 @@ export function SettingsScreen({ account, extra }: { account?: AccountActions; e
             Account
           </h2>
           <Card className="flex flex-wrap gap-2">
-            <form action={account.signOut}>
+            <form action={account.signOut} onSubmit={() => void clearPageCache()}>
               <button type="submit" className={btn.secondary}>
                 Sign out
               </button>
@@ -337,6 +348,7 @@ export function SettingsScreen({ account, extra }: { account?: AccountActions; e
             className="space-y-3"
             onSubmit={async (e) => {
               e.preventDefault();
+              await clearPageCache();
               const res = await account.deleteAccount(confirmText);
               if (!res.ok) setAccountError(res.error ?? "Couldn't delete the account");
             }}

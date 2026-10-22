@@ -101,7 +101,7 @@ export function HistoryScreen({ rangeAction }: { rangeAction?: React.ReactNode }
                 onClick={() => setSelected(d)}
                 className={`flex min-h-11 flex-col items-center justify-center rounded-lg text-sm tabular-nums ${
                   d === selected ? "bg-accent font-bold text-accent-ink" : d === today ? "border border-accent" : "bg-surface-2"
-                } ${d < semester.startDate || d > semester.endDate ? "opacity-40" : ""}`}
+                } ${d < semester.startDate || d > semester.endDate ? "text-muted" : ""}`}
               >
                 <span>{Number(d.slice(8))}</span>
                 <span className="flex h-2 items-center gap-0.5" aria-hidden="true">

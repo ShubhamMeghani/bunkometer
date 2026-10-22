@@ -149,8 +149,8 @@ export function ConfirmSheet({
 export function Metric({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="rounded-xl bg-surface-2 px-1 py-1.5 text-center">
-      <div className="text-[11px] font-semibold uppercase tracking-wide text-muted">{label}</div>
-      <div className="text-base font-bold tabular-nums" data-metric={label}>
+      <div className="text-[10px] font-semibold uppercase tracking-wide text-muted">{label}</div>
+      <div className="text-sm font-bold tabular-nums min-[400px]:text-base" data-metric={label}>
         {value}
       </div>
     </div>
