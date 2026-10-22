@@ -134,7 +134,7 @@ Leave the two Google values empty until H4. Do **not** add `E2E_TEST_AUTH`; Play
 ### H4. Google OAuth client (after H3, about 10 min)
 1. At https://console.cloud.google.com, create a project called `bunkometer`.
 2. Open **Google Auth Platform** (formerly *APIs & Services → OAuth consent screen*).
-   - **Branding:** app name `Bunk-o-Meter`, with your email as the support and developer contact. Application home page: `https://<your-production-domain>/`. Privacy policy: `https://<your-production-domain>/privacy`. Before publishing, replace the contact-email placeholder in `src/app/privacy/page.tsx` (`CONTACT_EMAIL`).
+   - **Branding:** app name `Bunk-o-Meter`, with your email as the support and developer contact. Application home page: `https://<your-production-domain>/`. Privacy policy: `https://<your-production-domain>/privacy`.
    - **Audience:** External. Then click **Publish app** so the status is **In production**.
    - Add no extra scopes. The defaults `openid`, `email` and `profile` are enough.
 3. Under **Clients → Create client**, choose **Web application** and enter these values exactly, with no trailing slashes:
@@ -370,3 +370,4 @@ Choices made during the build, one line each: date, phase, the choice, and why.
 - 2026-10-22 · P10 · The service worker caches pages network-first and hashed assets cache-first, never `/api/*` or POSTs; sign-out and account deletion clear the page cache.
 - 2026-10-22 · P11 · Full run before this commit: 109 unit tests and 35 E2E tests pass; `--repeat-each=2` gives 70/70 with no server-side errors in the log.
 - 2026-10-22 · SPEC v0.4 · Added `/privacy` (R51, AC-47) for the Google consent screen. The contact email is a visible placeholder (`CONTACT_EMAIL` in `src/app/privacy/page.tsx`) for the owner to fill in. The landing blurb now also mentions attendance data, so it matches the policy. Full suite: 109 unit, 38 E2E.
+- 2026-10-22 · Privacy page contact email set to the owner's address (`CONTACT_EMAIL`). Full suite: 109 unit, 38 E2E.

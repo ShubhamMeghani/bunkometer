@@ -3,8 +3,8 @@ import Link from "next/link";
 
 export const metadata: Metadata = { title: "Privacy policy · Bunk-o-Meter" };
 
-// TODO(owner): replace with the address people should write to about privacy (SPEC R51).
-const CONTACT_EMAIL = "[contact email — to be added]";
+// Where people write about their data (SPEC R51).
+const CONTACT_EMAIL = "shubhammeghanith2@gmail.com";
 
 /** Public privacy policy (SPEC R51); Google needs this URL to publish the OAuth consent screen. */
 export default function PrivacyPage() {
