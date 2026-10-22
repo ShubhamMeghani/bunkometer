@@ -343,12 +343,12 @@ Evidence is filled in when an AC passes, as the test file plus the commit (Unit/
 | AC-37 | E2E | P10 | pass | `e2e/mobile.spec.ts` (2 tests) · P10 commit |
 | AC-38 | E2E | P10 | pass | `e2e/a11y.spec.ts` (9 pages × 2 themes) · P10 commit |
 | AC-39 | E2E | P10 | pass | `e2e/pwa.spec.ts` (2 tests) · P10 commit |
-| AC-40 | E2E | P11 | todo | planned: `e2e/bundle-scan.spec.ts` |
+| AC-40 | E2E | P11 | pass | `e2e/bundle-scan.spec.ts` (every script loaded by 13 screens + all of `.next/static`) · P11 commit |
 | AC-41 | Deploy | P1 (re-checked P12) | Pending (human) | Needs H3 (Vercel deploy). Local `/api/health` 200 verified in `e2e/p1-smoke.spec.ts`. |
 | AC-42 | Deploy | P1 (re-checked P12) | Pending (human) | Needs H3 (Vercel deploy). Unit side covered by AC-14. |
 | AC-43 | Deploy | P1 (re-checked P12) | Pending (human) | Needs H3 push; `.github/workflows/ci.yml` added, `npm run check` green locally. |
-| AC-44 | Manual | P12 | todo | planned: owner report (date, devices, accounts) |
-| AC-45 | Manual | P12 | todo | planned: owner report (device, browser) |
+| AC-44 | Manual | P12 | Pending (human) | Needs H3–H6: real Google sign-in on two devices and a non-team account. |
+| AC-45 | Manual | P12 | Pending (human) | Needs H6: install on Android Chrome. Manifest, icons and service worker pass in AC-39. |
 | AC-46 | Unit | P2 | pass | `tests/unit/engine/cant-recover.test.ts` (3) · P2 commit |
 
 ## Build notes
@@ -367,3 +367,4 @@ Choices made during the build, one line each: date, phase, the choice, and why.
 - 2026-10-22 · P7 · The bulk preview's "overwritten" count is existing marks whose status would change (a Medical mark re-marked Medical isn't counted).
 - 2026-10-22 · P10 · App icons are PNGs rendered at build time by `next/og` route handlers (`/icons/*.png`), so no image tooling or extra dependency is needed.
 - 2026-10-22 · P10 · The service worker caches pages network-first and hashed assets cache-first, never `/api/*` or POSTs; sign-out and account deletion clear the page cache.
+- 2026-10-22 · P11 · Full run before this commit: 109 unit tests and 35 E2E tests pass; `--repeat-each=2` gives 70/70 with no server-side errors in the log.
