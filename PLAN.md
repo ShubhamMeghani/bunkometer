@@ -4,7 +4,7 @@
 |---|---|
 | Spec | [SPEC.md **v0.4**](SPEC.md). SPEC says *what* to build; this plan says *in what order and how it is checked*. |
 | Repo | https://github.com/ShubhamMeghani/bunkometer (branch `main`) |
-| Production URL | _TBD. Filled in after H3._ |
+| Production URL | https://bunkometer.vercel.app (demo: https://bunkometer.vercel.app/demo) |
 | Status legend | `todo` · `pass` · `fail` · `Pending (human)` |
 
 ## Stack
@@ -344,11 +344,11 @@ Evidence is filled in when an AC passes, as the test file plus the commit (Unit/
 | AC-38 | E2E | P10 | pass | `e2e/a11y.spec.ts` (9 pages × 2 themes) · P10 commit |
 | AC-39 | E2E | P10 | pass | `e2e/pwa.spec.ts` (2 tests) · P10 commit |
 | AC-40 | E2E | P11 | pass | `e2e/bundle-scan.spec.ts` (every script loaded by 13 screens + all of `.next/static`) · P11 commit |
-| AC-41 | Deploy | P1 (re-checked P12) | Pending (human) | Needs H3 (Vercel deploy). Local `/api/health` 200 verified in `e2e/p1-smoke.spec.ts`. |
-| AC-42 | Deploy | P1 (re-checked P12) | Pending (human) | Needs H3 (Vercel deploy). Unit side covered by AC-14. |
-| AC-43 | Deploy | P1 (re-checked P12) | Pending (human) | Needs H3 push; `.github/workflows/ci.yml` added, `npm run check` green locally. |
-| AC-44 | Manual | P12 | Pending (human) | Needs H3–H6: real Google sign-in on two devices and a non-team account. |
-| AC-45 | Manual | P12 | Pending (human) | Needs H6: install on Android Chrome. Manifest, icons and service worker pass in AC-39. |
+| AC-41 | Deploy | P1 (re-checked P12) | pass | 2026-10-22, `curl` on production: `GET /api/health` → 200 `{"ok":true,"db":true}`; `GET /demo` → 200, no redirect (also `/privacy` → 200; signed-out `/today` → 307 to `/`) |
+| AC-42 | Deploy | P1 (re-checked P12) | pass | 2026-10-22, `curl https://bunkometer.vercel.app/api/auth/providers` → 200, only `google` listed (no `test-login`) |
+| AC-43 | Deploy | P1 (re-checked P12) | pass | GitHub Actions run 39751189401 on `main` @ `83f884f`: success; job `check` on `ubuntu-24.04` with steps Lint, Typecheck, Unit tests all successful (https://github.com/ShubhamMeghani/bunkometer/actions/runs/39751189401) |
+| AC-44 | Manual | P12 | pass | Owner report 2026-10-22: Google sign-in on production works on the phone; the same mark shows on phone and laptop. Consent screen published "In production" (H4). A separate sign-in by a non-team account was not reported on its own. |
+| AC-45 | Manual | P12 | pass | Owner report 2026-10-22: installed from Android Chrome, opens standalone |
 | AC-46 | Unit | P2 | pass | `tests/unit/engine/cant-recover.test.ts` (3) · P2 commit |
 | AC-47 | E2E | P11 (privacy, SPEC v0.4) | pass | `e2e/privacy.spec.ts` (3 tests) + `/privacy` in `e2e/a11y.spec.ts` and `e2e/access.spec.ts` · privacy commit |
 
@@ -371,3 +371,4 @@ Choices made during the build, one line each: date, phase, the choice, and why.
 - 2026-10-22 · P11 · Full run before this commit: 109 unit tests and 35 E2E tests pass; `--repeat-each=2` gives 70/70 with no server-side errors in the log.
 - 2026-10-22 · SPEC v0.4 · Added `/privacy` (R51, AC-47) for the Google consent screen. The contact email is a visible placeholder (`CONTACT_EMAIL` in `src/app/privacy/page.tsx`) for the owner to fill in. The landing blurb now also mentions attendance data, so it matches the policy. Full suite: 109 unit, 38 E2E.
 - 2026-10-22 · Privacy page contact email set to the owner's address (`CONTACT_EMAIL`). Full suite: 109 unit, 38 E2E.
+- 2026-10-22 · P12 · Owner reported H3, H4 and H5 done, plus AC-44, AC-45 and the privacy contact (all PASS). Claude verified AC-41, AC-42 and AC-43 against production and the GitHub API. README finalised.

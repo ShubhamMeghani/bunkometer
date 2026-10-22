@@ -1,71 +1,152 @@
 ﻿# Bunk-o-Meter
 
-Know exactly how many classes you can skip.
+**Know exactly how many classes you can skip.**
 
-**Try it without signing in: open `/demo`** on the deployed app (production URL: _set after the first Vercel deploy_). The demo is a realistic Aug–Dec semester frozen at Wed 21 Oct 2026. One course is in danger, one is very safe, and one lab makeup is pending. Your changes stay in your browser.
+- **Live app:** https://bunkometer.vercel.app
+- **For evaluators, with no sign-in needed:** https://bunkometer.vercel.app/demo
 
-Bunk-o-Meter is a mobile-first web app for Indian college students. You mark each class Present / Absent / Medical / Cancelled with one tap. For every course and evaluation window, it then shows exactly how many more classes you can skip and still stay at or above the required percentage. It follows strict college rules:
+Bunk-o-Meter is a mobile-first web app for Indian college students. You mark each class with one tap: Present, Absent, Medical or Cancelled. For every course and every evaluation window, it then tells you exactly how many more classes you can skip and still stay at or above the required attendance. The maths is exact integer arithmetic, so 79.99% never rounds up to 80%.
 
-- 79.99% counts as below 80%; nothing is rounded up.
-- Medical leave counts as present, with an optional cap per course.
-- Tutorials can be counted or not, per course.
-- Courses can use split midsem and endsem windows.
-- Every missed lab needs a makeup.
+## The demo (`/demo`)
 
-| Screen | What it does |
+The demo is a realistic IISc-style Aug–Dec 2026 semester, frozen at **Wed 21 Oct 2026** so it looks the same whenever it's opened. It shows every feature:
+
+| Course | What it shows |
 |---|---|
-| Today | One-tap marking, extra classes, "N classes need marking", pending makeups |
-| Courses | Your budget per course and window: "Can skip 5 more", "Attend next 4 to reach 80%", "Can't recover in this window" |
-| Plan | Trip planner: pick dates and see per-course impact plus a Go / Careful / No-go verdict |
-| History | Calendar with a day editor, "Mark a range", streaks, most-skipped day, CSV export |
-| Settings | Semester, courses and rules, timetable, holidays and exams, share link, theme, account deletion |
+| PH 203 | **In danger** in its endsem window, even though its midsem window passed (windows are independent) |
+| MA 211 | Very safe (split windows, tutorials count) |
+| CH 201 | Recovering: tutorials not counted, and medical leave within a cap |
+| CS 201 | Has a **pending makeup lab** |
+| HS 201 | Has an extra Saturday class and a cancelled class |
 
-- **Spec:** [SPEC.md](SPEC.md)
-- **Build plan and AC status:** [PLAN.md](PLAN.md)
+Tap anything you like. Demo changes stay in your browser; **Settings → Reset demo** restores the seed.
 
-## Stack
+## What it does
 
-Next.js 16 (App Router, TypeScript), Tailwind CSS 4, Auth.js v5 (Google), Neon Postgres through Drizzle ORM, zod, Vitest, Playwright with axe, Vercel, GitHub Actions.
-
-The attendance maths lives in `src/lib/engine/`. It is pure TypeScript with integer arithmetic and no clock reads, and the server, the demo and the tests all share it.
-
-## Local setup
-
-1. Install Node.js 24 (see `.nvmrc`) and npm.
-2. Run `npm ci`.
-3. Create `.env.local` (it is gitignored) from `.env.example`:
-   - `DATABASE_URL`: the pooled connection string of the Neon **dev** branch. Production uses `main`. Local runs, preview deployments and E2E use `dev`.
-   - `AUTH_SECRET`: any random string, for example from `openssl rand -base64 32`.
-   - `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`: from the Google OAuth client. They are only needed for real Google sign-in.
-4. Run `npm run db:migrate`. This applies the SQL migrations in `drizzle/` to the dev branch.
-5. Run `npm run dev` and open http://localhost:3000.
-
-## Testing
-
-| Command | What it does |
+| Screen | Features |
 |---|---|
-| `npm run check` | Lint, typecheck and unit tests. This is exactly what CI runs. |
-| `npm test` | Vitest unit tests (`tests/unit/`): worked examples, a brute-force sweep, edge cases |
-| `npm run test:e2e` | Playwright: builds and starts the app on port 3100 with test-only sign-in, then runs `e2e/` against the dev database |
-| `npm run db:generate` | Creates a migration from `src/lib/db/schema.ts` |
-| `npm run db:migrate` | Applies migrations to `DATABASE_URL` |
+| **Today** | One-tap marking. Extra classes on any date. "N classes need marking". Pending-makeup banner with makeup date and "Mark completed". |
+| **Courses** | One card per course, worst first. The current window comes first and shows held, attended, current %, classes left, and the best % still possible. Headlines like *Can skip 5 more*, *Attend next 4 to reach 80%*, *No skips left*, *Can't recover in this window · best 71.4%*. |
+| **Plan** | Trip planner: pick dates and see, per course and window, the classes you'd miss, your projected %, skips left, and labs needing makeups, plus an overall **Go / Careful / No-go**. Nothing is saved. |
+| **History** | Month calendar showing classes, absences and unmarked days. Edit any day. "Mark a range" as Absent or Medical with a preview. Streaks, most-skipped weekday, CSV export. |
+| **Course page** | Weekly attendance trend chart with the required-% line. Makeups and rule editing. |
+| **Settings** | Semester dates, courses and rules, weekly timetable, holidays and exams, several semesters, Dark/Light/System theme, a read-only **share link** classmates can import as their own copy, sign out, delete account. |
 
-How E2E tests sign in: they use a credentials provider that exists only when `E2E_TEST_AUTH=1` and `VERCEL` is unset. Playwright sets the flag itself. Each test creates its own `<uuid>@e2e.test` user and deletes it afterwards.
+Other details:
+- Sign-in is with Google. We store only your name, email and Google ID, plus the attendance you record ([privacy policy](https://bunkometer.vercel.app/privacy)).
+- It installs as an app on Android (PWA). Offline it opens read-only and pauses marking.
+
+## Attendance rules and formulas
+
+The college preset applies to every new course, and every rule can be edited per course:
+
+- **Required %:** 80% by default (any whole number from 0 to 100).
+- **Counting:** per class session. A 3-hour lab counts as one session.
+- **What counts:** lectures always. Tutorials only if "tutorials count" is on. Labs never count toward the percentage.
+- **Cancelled classes** don't count at all. **Extra classes** count like any other.
+- **Medical** counts as attended. An optional cap per course limits how many medical sessions count; later ones count as absent. The earliest medical sessions in the semester count first.
+- **Evaluation window:** the whole semester, or split into a **midsem** window (start → midsem date, inclusive) and an **endsem** window (the day after midsem → end). Each split window must meet the requirement on its own.
+- **Labs:** every missed lab (absent or medical) becomes a **pending makeup** until it is marked completed. A makeup is **overdue** once its makeup date has passed.
+- **Unmarked past classes** don't count either way; the app asks you to mark them. Absences you mark ahead of time count straight away.
+
+For each course and window, with required % `p`:
+
+- `H` = classes held (marked present, absent or medical)
+- `A` = attended (present, plus medical within the cap)
+- `R` = classes still to come (unmarked, from today on)
+
+| Quantity | Formula |
+|---|---|
+| Requirement met | `100·A ≥ p·H` (integers; **strictly-below fails, no rounding**) |
+| Current % | `floor(1000·A/H) / 10`, truncated to one decimal and never rounded up |
+| Slack | `K = 100·(A+R) − p·(H+R)` |
+| Skips left | `S = min(R, floor(K/100))` when `K ≥ 0` |
+| Classes to attend in a row to get back to `p` | `N = ceil((p·H − 100·A) / (100 − p))` |
+| Best % still possible | `floor(1000·(A+R)/(H+R)) / 10` |
+
+**Status** is decided by the first rule that matches. It is always shown as text and an icon, never colour alone.
+
+| Order | Condition | Status | Headline |
+|---|---|---|---|
+| 1 | No classes in the window | none | — |
+| 2 | Nothing left (`R = 0`) | safe or danger | *Final X% · meets/below p%* |
+| 3 | `K < 0` | danger | *Can't recover in this window · best X%* |
+| 4 | `S = 0` | danger | *No skips left* |
+| 5 | Below `p` now | warning | *Attend next N* |
+| 6 | `S ≤ 2` | warning | *Can skip S more* |
+| 7 | Otherwise | safe | *Can skip S more* |
+
+Worked example: needs 80%, 17 of 20 attended, 20 classes left. `K = 3700 − 3200 = 500`, so you can skip **5 more**. That ends at 32/40 = exactly 80%, which passes; a 6th skip ends at 77.5%, which fails.
+
+SPEC.md §4.4 has all 14 worked examples and the edge cases.
+
+## Running it locally
+
+1. Install Node.js 24 (see `.nvmrc`) and npm. Run `npm ci`.
+2. Create `.env.local` (it is gitignored) from `.env.example`:
+   - `DATABASE_URL`: the Neon **dev** branch pooled URL. Production uses `main`; local runs, preview deployments and E2E use `dev`.
+   - `AUTH_SECRET`: a random secret, for example from `openssl rand -base64 32`.
+   - `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`: the Google OAuth client. Only needed for real Google sign-in.
+3. Run `npm run db:migrate`, then `npm run dev`, and open http://localhost:3000.
+
+## Tests
+
+| Command | What it runs |
+|---|---|
+| `npm run check` | Lint, typecheck and **109 unit tests** (Vitest). This is exactly what CI runs on `ubuntu-24.04`. |
+| `npm run test:e2e` | **38 Playwright E2E tests** on a production build with a mobile viewport, against the dev database |
+| `npm run db:generate` · `npm run db:migrate` | Create · apply SQL migrations (`drizzle/`) |
+
+The unit tests cover:
+- every SPEC worked example;
+- a brute-force sweep of 92,256 cases that checks the maths against its definition;
+- the edge cases, trip planner, statistics and CSV export;
+- validation and the demo seed;
+- a check that the engine never reads the clock.
+
+The E2E tests cover:
+- every screen and flow;
+- one user being unable to see or change another user's records;
+- sharing and importing, and account deletion;
+- the demo;
+- theme, the 360 px layout and tap sizes;
+- an axe WCAG AA audit in both themes;
+- the installable app and offline mode;
+- a scan proving no database driver or secret reaches the browser.
+
+E2E tests sign in through a test-only provider. It exists only when `E2E_TEST_AUTH=1` and the app is **not** on Vercel; production lists only Google (checked live).
 
 ## Deploying
 
-Vercel builds on every push to `main`. The `vercel-build` script applies migrations to that environment's database, then builds. Set these environment variables in Vercel; never commit them:
+Vercel builds on every push to `main`. `vercel-build` applies migrations to that environment's own database, then runs `next build`.
 
-| Name | Production | Preview |
+| Variable | Production | Preview |
 |---|---|---|
-| `DATABASE_URL` | Neon `main` pooled URL | Neon `dev` pooled URL |
-| `AUTH_SECRET` | random secret | random secret |
-| `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET` | Google OAuth client | same |
+| `DATABASE_URL` | Neon `main` (pooled) | Neon `dev` (pooled) |
+| `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET` | set | set |
 
-Google OAuth redirect URIs:
-- `http://localhost:3000/api/auth/callback/google`
-- `https://<production-domain>/api/auth/callback/google`
+The Google OAuth redirect URIs are `https://bunkometer.vercel.app/api/auth/callback/google` and `http://localhost:3000/api/auth/callback/google`. `GET /api/health` returns `{"ok":true,"db":true}`.
 
-Google sign-in works only on production and localhost; preview URLs change on every deploy.
+## Known limitations
 
-Never set `E2E_TEST_AUTH` on Vercel. `GET /api/health` returns `{"ok":true,"db":true}` when the database answers.
+- **No Google sign-in on preview deployments.** Vercel preview URLs change on every deploy and Google doesn't allow wildcard redirect URIs. Use production, localhost or `/demo`.
+- **Offline is read-only.** The installed app opens offline from its cache, but marking needs a connection. There is no offline queue.
+- **India time only.** "Today" is always the Asia/Kolkata date.
+- **Required % must be a whole number** (e.g. 75, 80). Courses with different rules for lectures and tutorials aren't modelled; the only option is whether tutorials count at all.
+- **Absences marked ahead of time count immediately**, so a planned trip lowers your current % now. The trip planner is the what-if tool; it saves nothing.
+- **Share links are live.** A link shows the owner's current timetable. Each import is a frozen copy and doesn't receive later changes.
+- **Free-tier hosting.** The Neon database sleeps when idle, so the first request after a pause can take a second or two. The database is in AWS US East, so pages are slower from India than a regional database would give.
+- **E2E tests are not in CI.** They need a database, so they run locally against the Neon `dev` branch. CI runs lint, typecheck and unit tests.
+- **The demo date is fixed** at 21 Oct 2026 on purpose.
+- **Out of scope:** notifications, native apps, AI features, and syncing with a college's official attendance system.
+
+## Spec-Driven Development files
+
+This project was built with Spec-Driven Development: requirements → acceptance criteria → tests → code.
+
+| File | Role |
+|---|---|
+| [SPEC.md](SPEC.md) | The specification: goal, users, constraints, data model, exact formulas with worked examples, 51 EARS requirements (R1–R51), 47 acceptance criteria (AC-1–AC-47), deployment risks, decisions, changelog |
+| [PLAN.md](PLAN.md) | The build plan: 12 phases with [AUTO]/[HUMAN] tasks, the rules followed during the autonomous build, the AC status and evidence table, and build notes |
+| `tests/unit/`, `e2e/` | One test file per AC, named in PLAN.md's AC table |
+| Git history | One commit per phase, each referencing the `R#` / `AC-#` IDs it delivers |
