@@ -19,7 +19,7 @@ test("signed-out visitors: app routes redirect, public routes don't", async ({ p
   const token = "AccessSpecToken_0123456789ab";
   await setShareToken(fixture.semesterId, token);
 
-  for (const path of ["/demo", `/share/${token}`]) {
+  for (const path of ["/demo", "/privacy", `/share/${token}`]) {
     const res = await page.goto(path);
     expect(res?.status()).toBe(200);
     await expect(page).toHaveURL(path);

@@ -27,6 +27,7 @@ for (const theme of ["dark", "light"] as const) {
   test(`axe audit, ${theme} theme`, async ({ page }) => {
     await page.addInitScript((t) => localStorage.setItem("theme", t), theme);
     await audit(page, "/", theme);
+    await audit(page, "/privacy", theme);
     await audit(page, "/demo", theme);
     await audit(page, "/demo/courses", theme);
 

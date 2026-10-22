@@ -266,6 +266,12 @@ export function SettingsScreen({ account, extra }: { account?: AccountActions; e
         </section>
       )}
 
+      <p className="text-sm">
+        <Link href="/privacy" className="inline-flex min-h-11 items-center font-semibold text-accent">
+          Privacy policy
+        </Link>
+      </p>
+
       <Sheet
         open={editing !== null}
         title={

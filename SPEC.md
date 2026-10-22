@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Version | 0.3 (open questions resolved; build plan in [PLAN.md](PLAN.md)) |
+| Version | 0.4 (open questions resolved; build plan in [PLAN.md](PLAN.md)) |
 | Date | 2026-10-22 |
 | Owner | Shubham Meghani |
 | Builder | Claude Code, working mostly autonomously, ~1–2 days |
@@ -474,6 +474,7 @@ Adding Fri 08-21 A gives most-skipped **Fri** and trend [80.0, 66.6, 60.0].
 | `/history` | user | Month calendar, day editor, "Mark a range" (bulk), statistics, Export CSV |
 | `/settings` | user | Semester, courses, timetable, no-class periods, share link (publish / copy / revoke), semester switcher, theme, sign out, delete account |
 | `/share/[token]` | public | Read-only template preview with Import |
+| `/privacy` | public | Privacy policy (R51), linked from the landing page footer and Settings |
 | `/demo`, `/demo/{courses,plan,history,settings}` | public | Same screens using demo data |
 | `/api/auth/*` | public | Auth.js |
 | `/api/health` | public | `{"ok":true,"db":true}` |
@@ -491,7 +492,7 @@ Adding Fri 08-21 A gives most-skipped **Fri** and trend [80.0, 66.6, 60.0].
 ## 5. Requirements
 
 ### A. Access and privacy
-- **R1 (Must)** WHEN a signed-out visitor requests any route other than `/`, `/demo/**`, `/share/**`, `/api/auth/**`, `/api/health` or static assets (manifest, service worker, icons), THE SYSTEM SHALL redirect to `/`, which offers "Sign in with Google" and "Try the demo".
+- **R1 (Must)** WHEN a signed-out visitor requests any route other than `/`, `/privacy`, `/demo/**`, `/share/**`, `/api/auth/**`, `/api/health` or static assets (manifest, service worker, icons), THE SYSTEM SHALL redirect to `/`, which offers "Sign in with Google" and "Try the demo".
 - **R2 (Must)** WHEN a user completes Google sign-in, THE SYSTEM SHALL upsert a user record holding only the Google ID, email and name, and SHALL redirect to `/today`, or to `/setup` if the user has no semester. WHEN the user signs out, THE SYSTEM SHALL end the session and redirect to `/`.
 - **R3 (Must)** THE SYSTEM SHALL scope every database read and write to records owned by the signed-in user. IF a request references a record that does not exist or belongs to another user THEN THE SYSTEM SHALL respond as not found (404) and change nothing.
 - **R4 (Must)** THE SYSTEM SHALL access the database only from server code via `DATABASE_URL`, and no client-side bundle SHALL contain a database driver, connection string or secret.
@@ -584,6 +585,13 @@ Adding Fri 08-21 A gives most-skipped **Fri** and trend [80.0, 66.6, 60.0].
 - **R48 (Must)** THE SYSTEM SHALL expose `GET /api/health`. It SHALL return 200 `{"ok":true,"db":true}` when a query on the `users` table succeeds, and 503 `{"ok":false,"db":false}` otherwise, with no other detail.
 - **R49 (Must)** WHEN commits are pushed or a pull request is opened, CI on `ubuntu-24.04` SHALL run lint, typecheck and unit tests, and fail on any error.
 - **R50 (Must)** THE SYSTEM SHALL be deployed on a Vercel production URL where `/demo`, Google sign-in and database access all work.
+- **R51 (Must)** THE SYSTEM SHALL serve a public privacy policy at `/privacy`, linked from the landing page footer and from Settings, which states:
+  - what is stored: name, email, Google ID and the user's attendance data;
+  - that nothing is shared or sold, and there are no ads or tracking;
+  - how to delete the account and all data;
+  - a contact email.
+
+  Google requires this URL, and the homepage URL, to publish the OAuth consent screen (D2).
 
 ---
 
@@ -743,6 +751,14 @@ E2E tests run against a production build with test sign-in. Each test sets `e2e_
   - After going offline and reloading `/today`, an offline notice shows and the marking controls are disabled.
 - **AC-40** [E2E] (R4) No JavaScript file loaded by any page in the E2E suite contains `postgres://`, `postgresql://`, `DATABASE_URL`, `AUTH_SECRET`, `AUTH_GOOGLE_SECRET` or `@neondatabase`.
 
+- **AC-47** [E2E] (R51, R1) Privacy policy:
+  - signed out, `/privacy` returns 200 without a redirect;
+  - it names what is stored (name, email, Google ID, attendance data), says nothing is shared or sold and there are no ads or tracking, and explains deleting the account in Settings;
+  - it has a contact email line;
+  - the landing page footer link "Privacy" opens it;
+  - Settings (signed in and in the demo) links to it;
+  - the page passes the AC-38 axe audit in both themes.
+
 ### Deploy
 - **AC-41** [Deploy] (R48, R50) On the production URL:
   - `GET /api/health` returns 200 `{"ok":true,"db":true}`;
@@ -761,7 +777,7 @@ E2E tests run against a production build with test sign-in. Each test sets `e2e_
 
 | R | ACs | R | ACs | R | ACs |
 |---|---|---|---|---|---|
-| R1 | 18 | R18 | 22 | R35 | 29 |
+| R1 | 18, 47 | R18 | 22 | R35 | 29 |
 | R2 | 19, 44 | R19 | 15, 22 | R36 | 12 |
 | R3 | 32 | R20 | 21 | R37 | 12 |
 | R4 | 40 | R21 | 23 | R38 | 13, 30 |
@@ -777,7 +793,7 @@ E2E tests run against a production build with test sign-in. Each test sets `e2e_
 | R14 | 34 | R31 | 11, 26 | R48 | 17, 41 |
 | R15 | 20 | R32 | 10, 27 | R49 | 43 |
 | R16 | 20 | R33 | 10, 27 | R50 | 41, 44 |
-| R17 | 21 | R34 | 28 | | |
+| R17 | 21 | R34 | 28 | R51 | 47 |
 
 The phase each AC belongs to, its status and its evidence are tracked in the AC table in [PLAN.md](PLAN.md).
 
@@ -796,7 +812,7 @@ Phase 1 deploys the walking skeleton before any features are built, so these ris
 | ID | Risk | Symptom | Prevention | Verified by |
 |---|---|---|---|---|
 | D1 | Google redirect URI not registered for the production domain | `Error 400: redirect_uri_mismatch` | Add `https://<project>.vercel.app/api/auth/callback/google` and `http://localhost:3000/api/auth/callback/google` as Authorized redirect URIs, and the matching JavaScript origins. Repeat if a custom domain is added. | AC-44 |
-| D2 | OAuth consent screen left in "Testing" mode | Users not on the test list see "Access blocked", including the professor | Set the app to **In production**. It requests only `openid email profile`, which are non-sensitive scopes and need no verification. Interim fallback: add the professor's account as a test user. `/demo` needs no login. | AC-44 |
+| D2 | OAuth consent screen left in "Testing" mode | Users not on the test list see "Access blocked", including the professor | Set the app to **In production**; Google asks for a homepage URL (`/`) and a privacy policy URL (`/privacy`, R51). It requests only `openid email profile`, which are non-sensitive scopes and need no verification. Interim fallback: add the professor's account as a test user. `/demo` needs no login. | AC-44 |
 | D3 | Vercel preview URLs change on every deploy and Google does not allow wildcards | Sign-in fails on preview deployments | Accepted. Sign-in is supported only on production and localhost. Previews use the `dev` branch and serve `/demo` and `/api/health`. | — |
 | D4 | Auth environment variables missing in Vercel, or added after the last deploy | Auth.js `MissingSecret` or `Configuration` error page | Set `AUTH_SECRET`, `AUTH_GOOGLE_ID` and `AUTH_GOOGLE_SECRET` with Production scope before the first deploy. Redeploy after any change, because variables only apply to new deployments. | AC-41, AC-44 |
 | D5 | Wrong host or URL detection | Callback goes to the wrong host, or `UntrustedHost` locally under `next start` | Do not set `AUTH_URL` on Vercel. Set `trustHost: true` in the Auth.js config, because local production-mode E2E needs it. | AC-19, AC-44 |
@@ -886,3 +902,4 @@ All twelve proposed defaults were accepted on 2026-10-22. OQ-6 and OQ-11 have ad
 | v0.1 | 2026-10-22 | Initial draft |
 | v0.2 | 2026-10-22 | Accepted OQ-1–OQ-12 as decisions. OQ-6: rule c headline is now `Can't recover in this window · best X%`; added E14 and AC-46. OQ-11: Preview, local and E2E use the Neon `dev` branch, only Production uses `main`; migrations run per environment (C11, D9, owner checklist). Phase breakdown and AC phases moved to PLAN.md (C12, §6). |
 | v0.3 | 2026-10-22 | Region correction: the Neon project is in AWS US East 1, so Vercel keeps its default function region `iad1` (D8). No requirement or AC changed. |
+| v0.4 | 2026-10-22 | Added R51 (Must): public `/privacy` page linked from the landing footer and Settings, needed to publish the Google OAuth consent screen; AC-47 (E2E); R1, §4.9 and D2 updated. |
