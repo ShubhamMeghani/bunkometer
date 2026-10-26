@@ -373,3 +373,10 @@ Choices made during the build, one line each: date, phase, the choice, and why.
 - 2026-10-22 · Privacy page contact email set to the owner's address (`CONTACT_EMAIL`). Full suite: 109 unit, 38 E2E.
 - 2026-10-22 · P12 · Owner reported H3, H4 and H5 done, plus AC-44, AC-45 and the privacy contact (all PASS). Claude verified AC-41, AC-42 and AC-43 against production and the GitHub API. README finalised.
 - 2026-10-22 · P12 · AC-44's last check confirmed: an outside Google account (not a test user) signed in on production.
+- 2026-10-26 · UI polish (visual only; no SPEC label, behaviour or test hook changed):
+  - status-coloured headlines, an attendance meter with the required-% tick, and status accent bars on course cards; a status overview on Courses;
+  - Today: date eyebrow and day summary, course-colour edges, compact banners, icons on mark buttons;
+  - friendlier empty states; landing preview card; History stat tiles; course sessions collapsed to the latest 12;
+  - two-column layout on desktop; reduced-motion-safe entrance and press transitions.
+
+  Screenshot audit at 360 and 1440 px in both themes, before and after. Full suite: 109 unit and 38 E2E tests, run against a fresh server on :3103 because a stale local process held :3100; zero server errors. A scratch axe + 360 px + tap-target audit of all demo screens passed in both themes.

@@ -18,7 +18,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       semesters={data.semesters.map((s) => ({ id: s.id, name: s.name }))}
       mutateAction={mutate}
     >
-      <main className="mx-auto max-w-lg px-4 pb-28 pt-5">{children}</main>
+      <main className="mx-auto max-w-lg px-4 pb-28 pt-6 md:max-w-3xl">{children}</main>
       <BottomNav />
     </DataProvider>
   );

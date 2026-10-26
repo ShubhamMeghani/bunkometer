@@ -10,13 +10,15 @@ import type { Course, Session, Status } from "@/lib/engine/types";
 import type { Target } from "@/lib/data/schemas";
 import { KIND_LABEL, STATUS_LABEL, plural, timeRange } from "@/lib/ui/format";
 import { useData } from "./data/DataProvider";
-import { Card, ColourDot, Metric, StatusChip, btn, inputClass } from "./ui";
+import { AttendanceMeter, Card, ColourDot, Metric, STATUS_FILL, STATUS_TEXT, StatusChip, btn, enter, inputClass } from "./ui";
+import { COLOUR_HEX } from "@/lib/ui/format";
 
 export function targetOf(s: Session): Target {
   return s.slotId ? { by: "slot", slotId: s.slotId, date: s.date } : { by: "row", rowId: s.rowId! };
 }
 
 const STATUSES: Status[] = ["present", "absent", "medical", "cancelled"];
+const ICONS: Record<Status, string> = { present: "✓", absent: "✕", medical: "✚", cancelled: "⊘" };
 const SELECTED: Record<Status, string> = {
   present: "bg-[var(--safe-strong)] text-[var(--safe-on)] border-transparent",
   absent: "bg-[var(--danger-strong)] text-[var(--danger-on)] border-transparent",
@@ -45,10 +47,13 @@ export function MarkControl({ session, course }: { session: Session; course: Cou
             disabled={disabled}
             title={st === "present" && future ? "You can't mark a future class present" : undefined}
             onClick={() => void run({ type: "mark", target: targetOf(session), status: selected ? null : st })}
-            className={`min-h-11 rounded-xl border px-1 text-[13px] font-semibold disabled:opacity-40 ${
-              selected ? SELECTED[st] : "border-line bg-surface-2 text-ink"
+            className={`press flex min-h-[52px] flex-col items-center justify-center gap-0.5 rounded-xl border px-1 text-[13px] font-semibold disabled:opacity-40 ${
+              selected ? `${SELECTED[st]} shadow-sm` : "border-line bg-surface-2 text-ink hover:border-accent"
             }`}
           >
+            <span aria-hidden="true" className="text-base leading-none">
+              {ICONS[st]}
+            </span>
             {STATUS_LABEL[st]}
           </button>
         );
@@ -66,7 +71,17 @@ export function labLine(summary: CourseSummary): string {
 }
 
 /** A class on Today or in a day editor: course, time, kind, the course's headline and the mark control. */
-export function SessionCard({ session, summary, label }: { session: Session; summary: CourseSummary; label?: string }) {
+export function SessionCard({
+  session,
+  summary,
+  label,
+  index = 0,
+}: {
+  session: Session;
+  summary: CourseSummary;
+  label?: string;
+  index?: number;
+}) {
   const { course } = summary;
   const counted = session.kind === "lecture" || (session.kind === "tutorial" && course.countTutorials);
   const line =
@@ -75,10 +90,13 @@ export function SessionCard({ session, summary, label }: { session: Session; sum
       : counted
         ? summary.current.headline
         : "Tutorials don't count for this course";
+  const lineStatus = session.kind === "lab" ? summary.lab.status : counted ? summary.current.status : "none";
+  const anim = enter(index);
   return (
-    <li data-testid="session" data-course={course.code} data-date={session.date} data-kind={session.kind}>
+    <li data-testid="session" data-course={course.code} data-date={session.date} data-kind={session.kind} className={anim.className} style={anim.style}>
       {label && <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted">{label}</p>}
-      <Card className="space-y-3">
+      <Card className="relative h-full space-y-3 overflow-hidden pl-5">
+        <span aria-hidden="true" className="absolute inset-y-0 left-0 w-1.5" style={{ background: COLOUR_HEX[course.colour] ?? "#64748b" }} />
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <div className="flex items-center gap-2">
@@ -97,7 +115,10 @@ export function SessionCard({ session, summary, label }: { session: Session; sum
             {timeRange(session.startTime, session.durationMin)}
           </span>
         </div>
-        <p className="text-sm font-semibold">{line}</p>
+        <p className={`flex items-center gap-2 text-sm font-bold ${STATUS_TEXT[lineStatus]}`}>
+          <span aria-hidden="true" className="size-2 shrink-0 rounded-full" style={{ background: STATUS_FILL[lineStatus] }} />
+          {line}
+        </p>
         <MarkControl session={session} course={course} />
       </Card>
     </li>
@@ -113,12 +134,13 @@ export function WindowBlock({ budget, compact = false, showLabel }: { budget: Wi
     );
   }
   return (
-    <div className="space-y-2" data-testid="current-window">
+    <div className="space-y-3" data-testid="current-window">
       {showLabel && <p className="text-xs font-semibold uppercase tracking-wide text-muted">{budget.window.label}</p>}
-      <p className="text-xl font-bold leading-snug" data-testid="headline">
+      <p className={`text-2xl font-bold leading-tight tracking-tight ${STATUS_TEXT[budget.status]}`} data-testid="headline">
         {budget.headline}
       </p>
-      <div className="grid grid-cols-5 gap-1.5">
+      {budget.H + budget.R > 0 && <AttendanceMeter A={budget.A} H={budget.H} p={budget.p} status={budget.status} />}
+      <div className="grid grid-cols-5 divide-x divide-[var(--border)] rounded-xl bg-surface-2">
         <Metric label="Held" value={budget.H} />
         <Metric label="Attended" value={budget.A} />
         <Metric label="Now" value={budget.cur} />
@@ -135,18 +157,21 @@ export function WindowBlock({ budget, compact = false, showLabel }: { budget: Wi
 }
 
 /** A course card on Courses (SPEC R29): status text + icon, current window first, other window beneath. */
-export function CourseCard({ summary }: { summary: CourseSummary }) {
+export function CourseCard({ summary, index = 0 }: { summary: CourseSummary; index?: number }) {
   const { href } = useData();
   const { course, windows, lab, hasPercentage } = summary;
   const split = windows.length > 1;
+  const anim = enter(index);
   return (
-    <li data-testid="course-card" data-course={course.code} data-status={summary.status}>
-      <Card className="space-y-3">
+    <li data-testid="course-card" data-course={course.code} data-status={summary.status} className={anim.className} style={anim.style}>
+      <Card className="relative h-full space-y-3 overflow-hidden pl-5">
+        <span aria-hidden="true" className="absolute inset-y-0 left-0 w-1.5" style={{ background: STATUS_FILL[summary.status] }} />
         <div className="flex items-start justify-between gap-3">
           <Link href={href(`/courses/${course.id}`)} className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               <ColourDot colour={course.colour} />
-              <span className="font-bold underline-offset-2 hover:underline">{course.code}</span>
+              <span className="text-lg font-bold underline-offset-2 hover:underline">{course.code}</span>
+              <span aria-hidden="true" className="text-muted">›</span>
             </div>
             <p className="truncate text-sm text-muted">{course.name}</p>
           </Link>
@@ -161,9 +186,9 @@ export function CourseCard({ summary }: { summary: CourseSummary }) {
           </>
         )}
         {lab.status !== "none" && (
-          <p className="flex items-center gap-2 text-sm font-semibold" data-testid="lab-line">
+          <p className={`flex items-center gap-2 text-sm font-semibold ${lab.pending ? "text-warn" : ""}`} data-testid="lab-line">
+            <span aria-hidden="true">🧪</span>
             {labLine(summary)}
-            {!hasPercentage && null}
           </p>
         )}
       </Card>

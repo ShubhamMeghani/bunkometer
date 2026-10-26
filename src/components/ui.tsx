@@ -6,19 +6,91 @@ import { BUDGET_LABEL, COLOUR_HEX } from "@/lib/ui/format";
 
 export const btn = {
   primary:
-    "inline-flex min-h-11 items-center justify-center rounded-xl bg-accent px-4 font-semibold text-accent-ink disabled:opacity-50",
+    "press inline-flex min-h-11 items-center justify-center rounded-xl bg-accent px-4 font-semibold text-accent-ink disabled:opacity-50",
   secondary:
-    "inline-flex min-h-11 items-center justify-center rounded-xl border border-line bg-surface-2 px-4 font-semibold disabled:opacity-50",
+    "press inline-flex min-h-11 items-center justify-center rounded-xl border border-line bg-surface-2 px-4 font-semibold hover:border-accent disabled:opacity-50",
   danger:
-    "inline-flex min-h-11 items-center justify-center rounded-xl bg-[var(--danger-strong)] px-4 font-semibold text-[var(--danger-on)] disabled:opacity-50",
-  ghost: "inline-flex min-h-11 items-center justify-center rounded-xl px-3 font-semibold text-accent",
+    "press inline-flex min-h-11 items-center justify-center rounded-xl bg-[var(--danger-strong)] px-4 font-semibold text-[var(--danger-on)] disabled:opacity-50",
+  ghost: "press inline-flex min-h-11 items-center justify-center rounded-xl px-3 font-semibold text-accent hover:bg-surface-2",
 };
+
+/** Status colours for text (AA on surfaces) and for marks such as meter fills and accent bars. */
+export const STATUS_TEXT: Record<BudgetStatus, string> = {
+  safe: "text-safe",
+  warning: "text-warn",
+  danger: "text-danger",
+  none: "text-ink",
+};
+
+export const STATUS_FILL: Record<BudgetStatus, string> = {
+  safe: "var(--safe-strong)",
+  warning: "var(--warn-strong)",
+  danger: "var(--danger-strong)",
+  none: "var(--muted)",
+};
+
+/** Staggered entrance; does nothing when reduced motion is requested. */
+export function enter(index = 0): { className: string; style: React.CSSProperties } {
+  return { className: "motion-safe:animate-fade-up", style: { animationDelay: `${Math.min(index, 6) * 40}ms` } };
+}
+
+export function PageHeader({ eyebrow, title, subtitle, action }: { eyebrow?: string; title: string; subtitle?: React.ReactNode; action?: React.ReactNode }) {
+  return (
+    <header className="flex items-end justify-between gap-3">
+      <div className="min-w-0">
+        {eyebrow && <p className="text-xs font-bold uppercase tracking-widest text-accent">{eyebrow}</p>}
+        <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
+        {subtitle && <p className="mt-0.5 text-sm text-muted">{subtitle}</p>}
+      </div>
+      {action && <div className="shrink-0 whitespace-nowrap">{action}</div>}
+    </header>
+  );
+}
+
+/**
+ * Attended share of held classes, with a tick at the requirement. Decorative: the same numbers are shown
+ * as text right next to it, so it is hidden from assistive technology.
+ */
+export function AttendanceMeter({ A, H, p, status }: { A: number; H: number; p: number; status: BudgetStatus }) {
+  const pct = H > 0 ? (100 * A) / H : 0;
+  return (
+    <div aria-hidden="true" className="relative pt-1">
+      <div className="h-2.5 overflow-hidden rounded-full bg-surface-2">
+        <div
+          className="h-full rounded-full motion-safe:transition-[width] motion-safe:duration-500"
+          style={{ width: `${pct}%`, background: STATUS_FILL[status] }}
+        />
+      </div>
+      <div className="absolute top-0 h-[18px] w-0.5 -translate-x-1/2 rounded-full bg-ink" style={{ left: `${p}%` }} />
+    </div>
+  );
+}
+
+/** Friendly empty state: an icon, a title (kept exact for tests and the SPEC wording), a hint and an optional action. */
+export function EmptyState({ icon, title, hint, children }: { icon: string; title: React.ReactNode; hint?: string; children?: React.ReactNode }) {
+  return (
+    <div className="motion-safe:animate-fade-up flex flex-col items-center gap-3 rounded-2xl border border-dashed border-line bg-surface px-6 py-8 text-center">
+      <span aria-hidden="true" className="grid size-14 place-items-center rounded-full bg-surface-2 text-3xl">
+        {icon}
+      </span>
+      <p className="text-lg font-bold" data-testid="empty-state">
+        {title}
+      </p>
+      {hint && <p className="max-w-xs text-sm text-muted">{hint}</p>}
+      {children}
+    </div>
+  );
+}
 
 export const inputClass =
   "min-h-11 w-full rounded-xl border border-line bg-surface-2 px-3 text-base text-ink placeholder:text-muted";
 
-export function Card({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return <div className={`rounded-2xl border border-line bg-surface p-4 ${className}`}>{children}</div>;
+export function Card({ children, className = "", style }: { children: React.ReactNode; className?: string; style?: React.CSSProperties }) {
+  return (
+    <div className={`rounded-2xl border border-line bg-surface p-4 shadow-[0_1px_2px_rgb(0_0_0/0.12)] ${className}`} style={style}>
+      {children}
+    </div>
+  );
 }
 
 export function ColourDot({ colour, className = "size-3" }: { colour: string; className?: string }) {
@@ -148,11 +220,11 @@ export function ConfirmSheet({
 
 export function Metric({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="rounded-xl bg-surface-2 px-1 py-1.5 text-center">
-      <div className="text-[10px] font-semibold uppercase tracking-wide text-muted">{label}</div>
+    <div className="min-w-0 px-1 py-2 text-center">
       <div className="text-sm font-bold tabular-nums min-[400px]:text-base" data-metric={label}>
         {value}
       </div>
+      <div className="text-[11px] font-medium text-muted">{label}</div>
     </div>
   );
 }

@@ -25,18 +25,39 @@ export default async function Landing() {
             course, with no rounding up.
           </p>
         </div>
+        <div
+          aria-hidden="true"
+          className="motion-safe:animate-fade-up relative overflow-hidden rounded-2xl border border-line bg-surface p-4 pl-5 shadow-lg"
+        >
+          <span className="absolute inset-y-0 left-0 w-1.5" style={{ background: "var(--safe-strong)" }} />
+          <div className="flex items-center justify-between">
+            <span className="flex items-center gap-2 font-bold">
+              <span className="size-3 rounded-full" style={{ background: "#6366f1" }} />
+              MA 211 <span className="font-normal text-muted">Real Analysis</span>
+            </span>
+            <span className="rounded-full bg-safe-bg px-2.5 py-1 text-xs font-bold text-safe">✓ Safe</span>
+          </div>
+          <p className="mt-2 text-2xl font-bold tracking-tight text-safe">Can skip 5 more</p>
+          <div className="relative mt-3 pt-1">
+            <div className="h-2.5 overflow-hidden rounded-full bg-surface-2">
+              <div className="h-full w-[85%] rounded-full" style={{ background: "var(--safe-strong)" }} />
+            </div>
+            <div className="absolute left-[80%] top-0 h-[18px] w-0.5 -translate-x-1/2 rounded-full bg-ink" />
+          </div>
+          <p className="mt-2 text-sm text-muted">17 of 20 attended · needs 80% · 20 classes left</p>
+        </div>
         <div className="flex flex-col gap-3">
           <form action={signInWithGoogle}>
             <button
               type="submit"
-              className="min-h-12 w-full rounded-2xl bg-accent px-5 text-base font-semibold text-accent-ink"
+              className="press min-h-12 w-full rounded-2xl bg-accent px-5 text-base font-semibold text-accent-ink shadow-lg"
             >
               Sign in with Google
             </button>
           </form>
           <Link
             href="/demo"
-            className="flex min-h-12 items-center justify-center rounded-2xl border border-line bg-surface px-5 text-base font-semibold"
+            className="press flex min-h-12 items-center justify-center rounded-2xl border border-line bg-surface px-5 text-base font-semibold hover:border-accent"
           >
             Try the demo
           </Link>

@@ -9,7 +9,7 @@ import type { Session } from "@/lib/engine/types";
 import { COLOUR_HEX, WEEKDAY_NAMES } from "@/lib/ui/format";
 import { SessionCard } from "../attendance";
 import { useData } from "../data/DataProvider";
-import { Card, btn } from "../ui";
+import { Card, PageHeader, btn } from "../ui";
 
 function monthStart(date: ISODate): ISODate {
   return `${date.slice(0, 7)}-01`;
@@ -54,10 +54,7 @@ export function HistoryScreen({ rangeAction }: { rangeAction?: React.ReactNode }
 
   return (
     <div className="space-y-4">
-      <header className="flex items-center justify-between gap-2">
-        <h1 className="text-2xl font-bold">History</h1>
-        {rangeAction}
-      </header>
+      <PageHeader title="History" subtitle="Tap a day to see or fix its marks." action={rangeAction} />
 
       <Card className="space-y-3">
         <div className="flex items-center justify-between">
@@ -123,29 +120,46 @@ export function HistoryScreen({ rangeAction }: { rangeAction?: React.ReactNode }
           {formatDayShort(selected)}
         </h2>
         {daySessions.length === 0 ? (
-          <Card>
+          <Card className="flex items-center gap-3">
+            <span aria-hidden="true" className="text-2xl">
+              {periodOn(selected, snapshot.periods) ? "🎉" : "☕"}
+            </span>
             <p className="text-muted">{periodOn(selected, snapshot.periods)?.label ?? "No classes"}</p>
           </Card>
         ) : (
-          <ul className="space-y-3" data-testid="day-editor">
-            {daySessions.map((s) => {
+          <ul className="grid gap-3 md:grid-cols-2" data-testid="day-editor">
+            {daySessions.map((s, i) => {
               const summary = byId.get(s.courseId);
-              return summary ? <SessionCard key={s.key} session={s} summary={summary} /> : null;
+              return summary ? <SessionCard key={s.key} session={s} summary={summary} index={i} /> : null;
             })}
           </ul>
         )}
       </section>
 
-      <Card className="space-y-1" >
-        <h2 className="font-bold">Stats</h2>
-        <p data-testid="most-skipped">
-          Most-skipped day: <strong>{skipped === null ? "No skips yet" : WEEKDAY_NAMES[skipped - 1]}</strong>
-        </p>
-        <p data-testid="streaks">
-          Current streak: <strong>{streak.current}</strong> · Longest: <strong>{streak.longest}</strong>
-        </p>
+      <section className="space-y-2" aria-labelledby="stats-h">
+        <h2 id="stats-h" className="text-lg font-bold">
+          Stats
+        </h2>
+        <div className="grid grid-cols-3 gap-2">
+          <Card className="p-3 text-center" >
+            <p className="text-2xl font-bold tabular-nums" data-testid="streaks">
+              🔥 {streak.current}
+            </p>
+            <p className="text-xs font-medium text-muted">Current streak</p>
+          </Card>
+          <Card className="p-3 text-center">
+            <p className="text-2xl font-bold tabular-nums">{streak.longest}</p>
+            <p className="text-xs font-medium text-muted">Longest streak</p>
+          </Card>
+          <Card className="p-3 text-center">
+            <p className="truncate text-2xl font-bold" data-testid="most-skipped">
+              {skipped === null ? "—" : WEEKDAY_NAMES[skipped - 1].slice(0, 3)}
+            </p>
+            <p className="text-xs font-medium text-muted">{skipped === null ? "No skips yet" : "Most-skipped day"}</p>
+          </Card>
+        </div>
         <p className="text-xs text-muted">A streak counts classes attended in a row; an absence resets it.</p>
-      </Card>
+      </section>
 
       <button
         type="button"

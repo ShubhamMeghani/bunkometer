@@ -11,10 +11,13 @@ import { CourseForm } from "../forms";
 import { TrendChart } from "../TrendChart";
 import { Card, ColourDot, ConfirmSheet, Sheet, StatusChip, btn } from "../ui";
 
+const RECENT = 12;
+
 export function CourseDetailScreen({ courseId, children }: { courseId: string; children?: React.ReactNode }) {
   const { summaries, today, href, run, snapshot } = useData();
   const [editOpen, setEditOpen] = useState(false);
   const [deleteExtra, setDeleteExtra] = useState<string | null>(null);
+  const [showAll, setShowAll] = useState(false);
   const summary = summaries.find((s) => s.course.id === courseId);
   if (!summary) {
     return (
@@ -38,7 +41,7 @@ export function CourseDetailScreen({ courseId, children }: { courseId: string; c
         <div>
           <div className="flex items-center gap-2">
             <ColourDot colour={course.colour} className="size-4" />
-            <h1 className="text-2xl font-bold">{course.code}</h1>
+            <h1 className="text-3xl font-bold tracking-tight">{course.code}</h1>
           </div>
           <p className="text-muted">{course.name}</p>
         </div>
@@ -92,7 +95,7 @@ export function CourseDetailScreen({ courseId, children }: { courseId: string; c
           <p className="text-sm text-muted">No sessions yet.</p>
         ) : (
           <ul className="divide-y divide-[var(--border)]">
-            {history.map((s) => (
+            {(showAll ? history : history.slice(0, RECENT)).map((s) => (
               <li key={s.key} className="flex min-h-11 items-center justify-between gap-2 py-1.5 text-sm">
                 <span>
                   <span className="font-semibold">{formatDayShort(s.date)}</span>{" "}
@@ -112,6 +115,11 @@ export function CourseDetailScreen({ courseId, children }: { courseId: string; c
               </li>
             ))}
           </ul>
+        )}
+        {history.length > RECENT && (
+          <button type="button" className={`${btn.ghost} w-full`} aria-expanded={showAll} onClick={() => setShowAll((v) => !v)}>
+            {showAll ? "Show recent only" : `Show all ${history.length} sessions`}
+          </button>
         )}
       </Card>
 

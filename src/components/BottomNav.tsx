@@ -28,13 +28,18 @@ export function BottomNav({ basePath = "" }: { basePath?: string }) {
               <Link
                 href={href}
                 aria-current={active ? "page" : undefined}
-                className={`flex min-h-14 min-w-11 flex-col items-center justify-center gap-0.5 text-xs font-medium ${
-                  active ? "text-accent" : "text-muted"
+                className={`press flex min-h-14 min-w-11 flex-col items-center justify-center gap-0.5 text-xs ${
+                  active ? "font-bold text-accent" : "font-medium text-muted hover:text-ink"
                 }`}
               >
-                <svg aria-hidden="true" viewBox="0 0 24 24" className="size-6" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
-                  <path d={tab.icon} />
-                </svg>
+                <span
+                  aria-hidden="true"
+                  className={`grid h-7 w-12 place-items-center rounded-full transition-colors ${active ? "bg-[color-mix(in_srgb,var(--accent)_18%,transparent)]" : ""}`}
+                >
+                  <svg viewBox="0 0 24 24" className="size-6" fill="none" stroke="currentColor" strokeWidth={active ? 2.1 : 1.8} strokeLinecap="round" strokeLinejoin="round">
+                    <path d={tab.icon} />
+                  </svg>
+                </span>
                 {tab.label}
               </Link>
             </li>

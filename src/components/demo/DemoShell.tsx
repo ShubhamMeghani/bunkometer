@@ -63,7 +63,7 @@ export function DemoShell({ children }: { children: React.ReactNode }) {
   return (
     <ResetContext.Provider value={reset}>
       <div className="sticky top-0 z-30 border-b border-line bg-surface-2/95 backdrop-blur">
-        <div className="mx-auto flex max-w-lg items-center justify-between gap-2 px-4 py-2 text-sm" role="note" aria-label="Demo mode">
+        <div className="mx-auto flex max-w-lg items-center justify-between gap-2 px-4 py-2 text-sm md:max-w-3xl" role="note" aria-label="Demo mode">
           <p>
             <span className="rounded-md bg-accent px-1.5 py-0.5 text-xs font-bold text-accent-ink">Demo</span>{" "}
             <span className="text-muted">It&apos;s {formatDayLong(DEMO_TODAY)}. Changes stay in this browser.</span>
@@ -87,7 +87,7 @@ export function DemoShell({ children }: { children: React.ReactNode }) {
           mutateAction={saveLocally}
           onConfirmed={persist}
         >
-          <main className="mx-auto max-w-lg px-4 pb-28 pt-5">{children}</main>
+          <main className="mx-auto max-w-lg px-4 pb-28 pt-6 md:max-w-3xl">{children}</main>
         </DataProvider>
       )}
       <BottomNav basePath="/demo" />

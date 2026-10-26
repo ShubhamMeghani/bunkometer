@@ -12,7 +12,7 @@ import { useData } from "../data/DataProvider";
 import { clearPageCache } from "../ServiceWorker";
 import { ThemeToggle } from "../Theme";
 import { CourseForm, PeriodForm, SemesterForm, SlotForm } from "../forms";
-import { Card, ColourDot, ConfirmSheet, Sheet, btn, inputClass } from "../ui";
+import { Card, ColourDot, ConfirmSheet, PageHeader, Sheet, btn, inputClass } from "../ui";
 
 const PLACEHOLDER_ID = "00000000-0000-4000-8000-000000000000";
 
@@ -58,7 +58,7 @@ export function SettingsScreen({ account, extra }: { account?: AccountActions; e
 
   return (
     <div className="space-y-5">
-      <h1 className="text-2xl font-bold">Settings</h1>
+      <PageHeader title="Settings" subtitle={snapshot.semester.name} />
 
       <section className="space-y-2" aria-labelledby="sem-h">
         <h2 id="sem-h" className="text-lg font-bold">
@@ -120,7 +120,7 @@ export function SettingsScreen({ account, extra }: { account?: AccountActions; e
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex min-w-0 items-center gap-2">
                     <ColourDot colour={c.colour} />
-                    <span className="font-bold">{c.code}</span>
+                    <span className="whitespace-nowrap font-bold">{c.code}</span>
                     <span className="truncate text-sm text-muted">{c.name}</span>
                   </div>
                   <div className="flex shrink-0">

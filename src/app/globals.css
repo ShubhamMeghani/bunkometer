@@ -84,6 +84,7 @@
   --color-none: var(--none);
   --color-none-bg: var(--none-bg);
   --color-medical: var(--medical);
+  --animate-fade-up: fade-up 0.28s cubic-bezier(0.2, 0.7, 0.2, 1) both;
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
 }
 
@@ -115,4 +116,32 @@ body {
 
 dialog::backdrop {
   background: rgb(0 0 0 / 0.6);
+}
+
+/* Motion: short, purposeful, and switched off for people who ask for reduced motion (see the media query above). */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  dialog[open] {
+    animation: fade-up 0.2s ease-out;
+  }
+  .press {
+    transition:
+      transform 120ms ease-out,
+      background-color 150ms ease-out,
+      color 150ms ease-out,
+      border-color 150ms ease-out;
+  }
+  .press:active:not(:disabled) {
+    transform: scale(0.97);
+  }
 }

@@ -5,7 +5,7 @@ import { addDays, formatDayShort } from "@/lib/engine/dates";
 import { planTrip, type Verdict } from "@/lib/engine/trip";
 import { plural } from "@/lib/ui/format";
 import { useData } from "../data/DataProvider";
-import { Card, ColourDot, Field, StatusChip, inputClass } from "../ui";
+import { Card, ColourDot, Field, PageHeader, StatusChip, enter, inputClass } from "../ui";
 
 const VERDICT: Record<Verdict, { label: string; text: string; cls: string; icon: string }> = {
   go: { label: "Go", text: "Every course stays safe.", cls: "bg-safe-bg text-safe", icon: "✓" },
@@ -23,10 +23,7 @@ export function PlanScreen() {
 
   return (
     <div className="space-y-4">
-      <header>
-        <h1 className="text-2xl font-bold">Plan a trip</h1>
-        <p className="text-muted">See what missing these days would do. Nothing is saved.</p>
-      </header>
+      <PageHeader title="Plan a trip" subtitle="See what missing these days would do. Nothing is saved." />
       <Card className="grid grid-cols-2 gap-2">
         <Field label="From">
           {(p) => <input {...p} type="date" className={inputClass} value={from} onChange={(e) => setFrom(e.target.value)} />}
@@ -44,7 +41,7 @@ export function PlanScreen() {
 
       {plan?.ok && (
         <>
-          <section className={`rounded-2xl p-4 ${VERDICT[plan.verdict].cls}`} data-testid="verdict" data-verdict={plan.verdict}>
+          <section className={`motion-safe:animate-fade-up rounded-2xl p-4 ${VERDICT[plan.verdict].cls}`} data-testid="verdict" data-verdict={plan.verdict}>
             <p className="text-2xl font-bold">
               <span aria-hidden="true">{VERDICT[plan.verdict].icon} </span>
               {VERDICT[plan.verdict].label}
@@ -58,9 +55,9 @@ export function PlanScreen() {
             </p>
           </section>
 
-          <ul className="space-y-3">
-            {plan.affected.map((c) => (
-              <li key={c.course.id} data-testid="trip-course" data-course={c.course.code}>
+          <ul className="grid gap-3 md:grid-cols-2">
+            {plan.affected.map((c, i) => (
+              <li key={c.course.id} data-testid="trip-course" data-course={c.course.code} {...enter(i)}>
                 <Card className="space-y-2">
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
