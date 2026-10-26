@@ -1,0 +1,3 @@
+ALTER TABLE "semesters" DROP CONSTRAINT "semesters_date_order";--> statement-breakpoint
+ALTER TABLE "semesters" ALTER COLUMN "midsem_date" DROP NOT NULL;--> statement-breakpoint
+ALTER TABLE "semesters" ADD CONSTRAINT "semesters_date_order" CHECK ("semesters"."start_date" < "semesters"."end_date" and ("semesters"."midsem_date" is null or ("semesters"."start_date" < "semesters"."midsem_date" and "semesters"."midsem_date" < "semesters"."end_date")));

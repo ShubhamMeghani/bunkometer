@@ -51,15 +51,21 @@ export const semesterSchema = z
   .object({
     name: z.string().trim().min(1, "Enter a name").max(60, "At most 60 characters"),
     startDate: isoDateSchema,
-    midsemDate: isoDateSchema,
+    // Optional (SPEC v0.5): only needed when a course uses split windows.
+    midsemDate: isoDateSchema.nullable(),
     endDate: isoDateSchema,
   })
   .superRefine((s, ctx) => {
-    if (!isISODate(s.startDate) || !isISODate(s.midsemDate) || !isISODate(s.endDate)) return;
-    if (!(s.startDate < s.midsemDate))
-      ctx.addIssue({ code: "custom", path: ["midsemDate"], message: "Midsem date must be after the start date" });
-    if (!(s.midsemDate < s.endDate))
-      ctx.addIssue({ code: "custom", path: ["endDate"], message: "End date must be after the midsem date" });
+    if (!isISODate(s.startDate) || !isISODate(s.endDate) || (s.midsemDate !== null && !isISODate(s.midsemDate))) return;
+    if (s.midsemDate === null) {
+      if (!(s.startDate < s.endDate))
+        ctx.addIssue({ code: "custom", path: ["endDate"], message: "End date must be after the start date" });
+    } else {
+      if (!(s.startDate < s.midsemDate))
+        ctx.addIssue({ code: "custom", path: ["midsemDate"], message: "Midsem date must be after the start date" });
+      if (!(s.midsemDate < s.endDate))
+        ctx.addIssue({ code: "custom", path: ["endDate"], message: "End date must be after the midsem date" });
+    }
     if (s.startDate < s.endDate && daysBetween(s.startDate, s.endDate) > 366)
       ctx.addIssue({ code: "custom", path: ["endDate"], message: "A semester can span at most 366 days" });
   });

@@ -88,9 +88,12 @@ const WINDOW_LABELS: Record<WindowId, string> = {
   endsem: "Endsem window",
 };
 
-/** Whole: [start, end]. Split: midsem [start, midsem] (inclusive) and endsem [midsem + 1, end] (SPEC R26). */
+/**
+ * Whole: [start, end]. Split: midsem [start, midsem] (inclusive) and endsem [midsem + 1, end] (SPEC R26).
+ * Validation never lets a split course exist without a midsem date (R52); if one ever did, it is treated as whole.
+ */
 export function windowsFor(course: Pick<Course, "windowMode">, semester: Semester): WindowDef[] {
-  if (course.windowMode === "whole") {
+  if (course.windowMode === "whole" || semester.midsemDate === null) {
     return [{ id: "whole", label: WINDOW_LABELS.whole, start: semester.startDate, end: semester.endDate }];
   }
   return [
@@ -100,7 +103,7 @@ export function windowsFor(course: Pick<Course, "windowMode">, semester: Semeste
 }
 
 export function windowIdOf(date: ISODate, course: Pick<Course, "windowMode">, semester: Semester): WindowId {
-  if (course.windowMode === "whole") return "whole";
+  if (course.windowMode === "whole" || semester.midsemDate === null) return "whole";
   return date <= semester.midsemDate ? "midsem" : "endsem";
 }
 

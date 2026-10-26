@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Version | 0.4 (open questions resolved; build plan in [PLAN.md](PLAN.md)) |
+| Version | 0.5 (open questions resolved; build plan in [PLAN.md](PLAN.md)) |
 | Date | 2026-10-22 |
 | Owner | Shubham Meghani |
 | Builder | Claude Code, working mostly autonomously, ~1–2 days |
@@ -113,7 +113,7 @@ All pass/fail decisions use exact integer maths.
 
 | Term | Meaning |
 |---|---|
-| Semester | Has `start`, `midsem` and `end` dates, with `start < midsem < end`. A user may have several; one is *active*. |
+| Semester | Has `start` and `end` dates (`start < end`) and an **optional** `midsem` date (`start < midsem < end` when given). The midsem date is needed only if a course uses split windows. A user may have several semesters; one is *active*. |
 | Course | Belongs to a semester. Has its own rules: required % `p`, whether tutorials count, medical cap, and window mode. |
 | Slot | A weekly timetable entry: weekday, start time, duration, kind (`lecture` / `tutorial` / `lab`). |
 | No-class period | An inclusive date range (holiday, exam or other). No scheduled sessions happen inside it. |
@@ -142,7 +142,8 @@ All pass/fail decisions use exact integer maths.
 |---|---|
 | `user_id` | FK → users, cascade |
 | `name` | text, 1–60 characters |
-| `start_date`, `midsem_date`, `end_date` | date. Check `start < midsem < end` and `end − start ≤ 366 days`. |
+| `start_date`, `end_date` | date, not null. Check `start < end` and `end − start ≤ 366 days`. |
+| `midsem_date` | date, **nullable** (v0.5). When set, check `start < midsem < end`. |
 | `share_token` | text, unique, nullable (null means not shared) |
 | `created_at`, `updated_at` | |
 
@@ -503,13 +504,14 @@ Adding Fri 08-21 A gives most-skipped **Fri** and trend [80.0, 66.6, 60.0].
   - treat any other session of that user as signed out on its next request.
 
 ### B. Semester setup
-- **R7 (Must)** WHEN a signed-in user has no semester, THE SYSTEM SHALL show `/setup`, where the user can create one (name, start, midsem, end) or import one from a share link.
-- **R8 (Must)** IF a semester does not satisfy `start < midsem < end`, or spans more than 366 days, THEN THE SYSTEM SHALL refuse to save and show an inline error on the offending field.
+- **R7 (Must)** WHEN a signed-in user has no semester, THE SYSTEM SHALL show `/setup`, where the user can create one (name, start, end, and an optional midsem date with the hint "Only needed if a course counts attendance separately for midsem and endsem.") or import one from a share link.
+- **R8 (Must)** IF a semester does not satisfy `start < end`, or has a midsem date that does not satisfy `start < midsem < end`, or spans more than 366 days, THEN THE SYSTEM SHALL refuse to save and show an inline error on the offending field.
 - **R9 (Must)** WHEN a user adds a course, THE SYSTEM SHALL:
   - require a code (1–16 characters, unique in the semester) and a name (1–80 characters);
   - assign the next unused palette colour;
   - apply the preset rules (80%, tutorials count, no medical cap, whole-semester window);
-  - let the user edit each rule per course (required % as an integer 0–100; window whole or split; tutorials on or off; medical cap empty or 0–99).
+  - let the user edit each rule per course (required % as an integer 0–100; window whole or split; tutorials on or off; medical cap empty or 0–99);
+  - offer the split window only when the semester has a midsem date. Otherwise the split option is disabled, with a hint saying where to add the midsem date (setup step 1 or Settings → Semester), and saving a split course without one is refused.
 - **R10 (Must)** WHEN a user adds a timetable slot (weekday, start time, duration 15–240 min, kind), THE SYSTEM SHALL generate sessions for it exactly as in §4.3.
 - **R11 (Must)** WHEN a user adds, edits or removes a no-class period, THE SYSTEM SHALL exclude scheduled sessions on its dates from every screen and calculation, while keeping their stored marks so they return if the period is removed.
 - **R12 (Should)** WHERE a slot has a valid-from and/or valid-to date, THE SYSTEM SHALL generate its sessions only within that range, to support timetable changes mid-semester.
@@ -592,6 +594,7 @@ Adding Fri 08-21 A gives most-skipped **Fri** and trend [80.0, 66.6, 60.0].
   - a contact email.
 
   Google requires this URL, and the homepage URL, to publish the OAuth consent screen (D2).
+- **R52 (Must)** IF a user removes the semester's midsem date while any course uses split windows THEN THE SYSTEM SHALL refuse the change and show an inline message naming those courses and asking to switch them to whole semester first. Semesters that already have a midsem date, the demo, and every formula are unchanged.
 
 ---
 
@@ -759,6 +762,19 @@ E2E tests run against a production build with test sign-in. Each test sets `e2e_
   - Settings (signed in and in the demo) links to it;
   - the page passes the AC-38 axe audit in both themes.
 
+- **AC-48** [Unit] (R8, R9, R52) Optional midsem date:
+  - a semester with no midsem date is valid, and end must still be after start;
+  - a given midsem date is still checked;
+  - a split course is refused without a midsem date and accepted with one, both in Settings and in a new semester;
+  - removing the midsem date is refused while a split course exists, with a message naming it, and allowed otherwise;
+  - whole-semester results are identical with or without a midsem date;
+  - existing split semesters keep both windows.
+- **AC-49** [E2E] (R7, R8, R9, R52) Optional midsem date in the app:
+  - setup shows the midsem hint and finishes without a midsem date;
+  - in that semester, the split option is disabled with its hint, both in setup and in Settings → Add course;
+  - in a semester with a split course, clearing the midsem date in Settings shows the blocking message, and after a reload the date is unchanged;
+  - existing split windows still show on Courses.
+
 ### Deploy
 - **AC-41** [Deploy] (R48, R50) On the production URL:
   - `GET /api/health` returns 200 `{"ok":true,"db":true}`;
@@ -783,9 +799,9 @@ E2E tests run against a production build with test sign-in. Each test sets `e2e_
 | R4 | 40 | R21 | 23 | R38 | 13, 30 |
 | R5 | 14, 42 | R22 | 1, 2, 7, 46 | R39 | 31 |
 | R6 | 33 | R23 | 2, 3 | R40 | 31 |
-| R7 | 19 | R24 | 4 | R41 | 31, 33 |
-| R8 | 15 | R25 | 5 | R42 | 16, 35, 41 |
-| R9 | 15 | R26 | 6, 25 | R43 | 35 |
+| R7 | 19, 49 | R24 | 4 | R41 | 31, 33 |
+| R8 | 15, 48, 49 | R25 | 5 | R42 | 16, 35, 41 |
+| R9 | 15, 48, 49 | R26 | 6, 25 | R43 | 35 |
 | R10 | 8, 19 | R27 | 1, 7, 46 | R44 | 36 |
 | R11 | 8, 24 | R28 | 9 | R45 | 37 |
 | R12 | 8 | R29 | 25 | R46 | 38 |
@@ -794,6 +810,7 @@ E2E tests run against a production build with test sign-in. Each test sets `e2e_
 | R15 | 20 | R32 | 10, 27 | R49 | 43 |
 | R16 | 20 | R33 | 10, 27 | R50 | 41, 44 |
 | R17 | 21 | R34 | 28 | R51 | 47 |
+| | | | | R52 | 48, 49 |
 
 The phase each AC belongs to, its status and its evidence are tracked in the AC table in [PLAN.md](PLAN.md).
 
@@ -903,3 +920,4 @@ All twelve proposed defaults were accepted on 2026-10-22. OQ-6 and OQ-11 have ad
 | v0.2 | 2026-10-22 | Accepted OQ-1–OQ-12 as decisions. OQ-6: rule c headline is now `Can't recover in this window · best X%`; added E14 and AC-46. OQ-11: Preview, local and E2E use the Neon `dev` branch, only Production uses `main`; migrations run per environment (C11, D9, owner checklist). Phase breakdown and AC phases moved to PLAN.md (C12, §6). |
 | v0.3 | 2026-10-22 | Region correction: the Neon project is in AWS US East 1, so Vercel keeps its default function region `iad1` (D8). No requirement or AC changed. |
 | v0.4 | 2026-10-22 | Added R51 (Must): public `/privacy` page linked from the landing footer and Settings, needed to publish the Google OAuth consent screen; AC-47 (E2E); R1, §4.9 and D2 updated. |
+| v0.5 | 2026-10-26 | The midsem date is optional and only needed for split windows. Changes: §4.1 and §4.2 (`midsem_date` nullable, check relaxed), R7, R8 and R9 updated, new R52 (removing the midsem date is blocked while split courses exist), AC-48 (Unit) and AC-49 (E2E) added. Existing semesters, the demo and the maths are unchanged. |

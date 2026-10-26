@@ -48,7 +48,8 @@ export interface ExtraSpec {
 export interface FixtureSpec {
   name?: string;
   startDate?: string;
-  midsemDate?: string;
+  /** Pass null for a semester without a midsem date. */
+  midsemDate?: string | null;
   endDate?: string;
   courses: CourseSpec[];
   periods?: { startDate: string; endDate: string; label: string; kind?: "holiday" | "exam" | "other" }[];
@@ -88,7 +89,7 @@ export async function createFixture(email: string, spec: FixtureSpec): Promise<F
     userId,
     name: spec.name ?? "Aug–Dec 2026",
     startDate: spec.startDate ?? "2026-08-03",
-    midsemDate: spec.midsemDate ?? "2026-09-26",
+    midsemDate: spec.midsemDate === undefined ? "2026-09-26" : spec.midsemDate,
     endDate: spec.endDate ?? "2026-11-28",
   });
 

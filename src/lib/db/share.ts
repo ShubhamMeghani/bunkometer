@@ -33,7 +33,7 @@ export async function revokeShare(userId: string, semesterId: string): Promise<b
 }
 
 export interface Template {
-  semester: { name: string; startDate: string; midsemDate: string; endDate: string };
+  semester: { name: string; startDate: string; midsemDate: string | null; endDate: string };
   courses: NewSemester["courses"];
   slots: NewSemester["slots"];
   periods: NewSemester["periods"];

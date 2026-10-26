@@ -37,16 +37,21 @@ function useSubmit<T>(onSubmit: Submit<T>) {
 
 export type SemesterFields = Pick<Semester, "name" | "startDate" | "midsemDate" | "endDate">;
 
+export const MIDSEM_HINT = "Only needed if a course counts attendance separately for midsem and endsem.";
+
 export function SemesterForm({
   initial,
   submitLabel,
   onSubmit,
+  check,
 }: {
   initial: SemesterFields;
   submitLabel: string;
   onSubmit: Submit<SemesterFields>;
+  /** Extra rule that needs other data, e.g. split courses blocking midsem removal (SPEC R52). */
+  check?: (s: SemesterFields) => { field: keyof SemesterFields; message: string } | null;
 }) {
-  const [v, setV] = useState(initial);
+  const [v, setV] = useState({ ...initial, midsemDate: initial.midsemDate ?? "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { busy, submit } = useSubmit(onSubmit);
   return (
@@ -55,8 +60,10 @@ export function SemesterForm({
       className="space-y-3"
       onSubmit={async (e) => {
         e.preventDefault();
-        const r = semesterSchema.safeParse(v);
+        const r = semesterSchema.safeParse({ ...v, midsemDate: v.midsemDate || null });
         if (!r.success) return setErrors(fieldErrors(r.error));
+        const extra = check?.(r.data);
+        if (extra) return setErrors({ [extra.field]: extra.message });
         setErrors({});
         await submit(r.data);
       }}
@@ -67,7 +74,7 @@ export function SemesterForm({
       <Field label="Start date" error={errors.startDate}>
         {(p) => <input {...p} type="date" className={inputClass} value={v.startDate} onChange={(e) => setV({ ...v, startDate: e.target.value })} />}
       </Field>
-      <Field label="Midsem date" error={errors.midsemDate} hint="The midsem window includes this date.">
+      <Field label="Midsem date (optional)" error={errors.midsemDate} hint={`${MIDSEM_HINT} The midsem window includes this date.`}>
         {(p) => <input {...p} type="date" className={inputClass} value={v.midsemDate} onChange={(e) => setV({ ...v, midsemDate: e.target.value })} />}
       </Field>
       <Field label="End date" error={errors.endDate}>
@@ -84,10 +91,13 @@ export function CourseForm({
   initial,
   submitLabel,
   onSubmit,
+  splitHint,
 }: {
   initial: Course;
   submitLabel: string;
   onSubmit: Submit<Course>;
+  /** Set when the semester has no midsem date: "split" is disabled and this explains where to add one (SPEC R9, R52). */
+  splitHint?: string;
 }) {
   const [v, setV] = useState({
     code: initial.code,
@@ -137,11 +147,13 @@ export function CourseForm({
           {(p) => <input {...p} inputMode="numeric" className={inputClass} value={v.medicalCap} onChange={(e) => setV({ ...v, medicalCap: e.target.value })} />}
         </Field>
       </div>
-      <Field label="Evaluation window">
+      <Field label="Evaluation window" error={errors.windowMode} hint={splitHint}>
         {(p) => (
           <select {...p} className={inputClass} value={v.windowMode} onChange={(e) => setV({ ...v, windowMode: e.target.value as Course["windowMode"] })}>
             <option value="whole">Whole semester</option>
-            <option value="split">Split: midsem + endsem</option>
+            <option value="split" disabled={splitHint !== undefined && v.windowMode !== "split"}>
+              Split: midsem + endsem{splitHint ? " (needs a midsem date)" : ""}
+            </option>
           </select>
         )}
       </Field>

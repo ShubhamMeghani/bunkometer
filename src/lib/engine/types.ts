@@ -13,7 +13,8 @@ export interface Semester {
   id: string;
   name: string;
   startDate: ISODate;
-  midsemDate: ISODate;
+  /** Optional (SPEC v0.5): required only when a course uses split windows. */
+  midsemDate: ISODate | null;
   endDate: ISODate;
   shareToken?: string | null;
 }

@@ -125,6 +125,7 @@ export function CourseDetailScreen({ courseId, children }: { courseId: string; c
 
       <Sheet open={editOpen} title={`Edit ${course.code}`} onClose={() => setEditOpen(false)}>
         <CourseForm
+          splitHint={snapshot.semester.midsemDate ? undefined : "Add a midsem date under Settings → Semester to use split windows."}
           initial={course}
           submitLabel="Save course"
           onSubmit={async (c) => {

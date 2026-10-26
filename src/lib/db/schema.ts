@@ -36,7 +36,8 @@ export const semesters = pgTable(
       .references(() => users.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
     startDate: date("start_date", { mode: "string" }).notNull(),
-    midsemDate: date("midsem_date", { mode: "string" }).notNull(),
+    // Optional: only needed when a course uses split midsem/endsem windows (SPEC v0.5).
+    midsemDate: date("midsem_date", { mode: "string" }),
     endDate: date("end_date", { mode: "string" }).notNull(),
     shareToken: text("share_token").unique(),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
@@ -45,7 +46,10 @@ export const semesters = pgTable(
   (t) => [
     index("semesters_user_idx").on(t.userId),
     check("semesters_name_len", sql`char_length(${t.name}) between 1 and 60`),
-    check("semesters_date_order", sql`${t.startDate} < ${t.midsemDate} and ${t.midsemDate} < ${t.endDate}`),
+    check(
+      "semesters_date_order",
+      sql`${t.startDate} < ${t.endDate} and (${t.midsemDate} is null or (${t.startDate} < ${t.midsemDate} and ${t.midsemDate} < ${t.endDate}))`,
+    ),
     check("semesters_span", sql`${t.endDate} - ${t.startDate} <= 366`),
   ],
 );

@@ -25,8 +25,8 @@ describe("AC-8 session generation", () => {
       "2026-10-05", "2026-10-12", "2026-10-19", "2026-10-26",
       "2026-11-02", "2026-11-09", "2026-11-16", "2026-11-23",
     ]);
-    expect(dates.filter((d) => d <= SEM.midsemDate)).toHaveLength(7);
-    expect(dates.filter((d) => d > SEM.midsemDate)).toHaveLength(9);
+    expect(dates.filter((d) => d <= SEM.midsemDate!)).toHaveLength(7);
+    expect(dates.filter((d) => d > SEM.midsemDate!)).toHaveLength(9);
   });
 
   it("the Oct 19 mark is used, ignored while that day is a holiday, and back after removal", () => {

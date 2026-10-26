@@ -1,13 +1,23 @@
 import { eachDate, maxDate, minDate, weekdayOf, type ISODate } from "@/lib/engine/dates";
 import { needsMakeup, withStatus } from "@/lib/engine/labs";
 import { generateSessions, periodOn } from "@/lib/engine/sessions";
-import type { Session, SessionRow, Slot, Snapshot } from "@/lib/engine/types";
+import type { Course, Session, SessionRow, Slot, Snapshot } from "@/lib/engine/types";
 import { LIMITS, type Mutation, type NewSemester, type Target } from "./schemas";
 
 // One pure reducer for every change. The optimistic UI, the demo store and the server all use it;
 // the server then writes only the resulting row-level diff (SPEC R3, C7).
 
 export type NewId = () => string;
+
+export const SPLIT_NEEDS_MIDSEM = "Split windows need a midsem date. Add one to the semester first.";
+
+/** SPEC R52: the midsem date can't be removed while courses still use split windows. */
+export function midsemRemovalBlock(courses: Pick<Course, "code" | "windowMode">[]): string | null {
+  const split = courses.filter((c) => c.windowMode === "split").map((c) => c.code);
+  if (split.length === 0) return null;
+  const list = split.length === 1 ? split[0] : `${split.slice(0, -1).join(", ")} and ${split[split.length - 1]}`;
+  return `${list} ${split.length === 1 ? "uses" : "use"} split midsem/endsem windows. Switch ${split.length === 1 ? "it" : "them"} to whole semester first, or keep the midsem date.`;
+}
 
 /** True when `slot` really meets on `date` (inside the semester and validity, not a no-class day). */
 export function isOccurrence(snap: Snapshot, slot: Slot, date: ISODate): boolean {
@@ -94,9 +104,10 @@ export function validateMutation(snap: Snapshot, m: Mutation, today: ISODate): s
     case "deleteExtra":
       return snap.rows.some((r) => r.id === m.rowId && r.isExtra) ? null : "Not found";
     case "saveSemester":
-      return null;
+      return m.semester.midsemDate === null ? midsemRemovalBlock(snap.courses) : null;
     case "saveCourse": {
       const c = m.course;
+      if (c.windowMode === "split" && semester.midsemDate === null) return SPLIT_NEEDS_MIDSEM;
       const isNew = !courseIds.has(c.id);
       if (isNew && snap.courses.length >= LIMITS.coursesPerSemester)
         return `At most ${LIMITS.coursesPerSemester} courses per semester`;
@@ -231,6 +242,7 @@ export function applyMutation(snap: Snapshot, m: Mutation, newId: NewId): Snapsh
 
 /** Cross-checks for a whole new semester (setup wizard and import). Returns a message or null. */
 export function validateNewSemester(input: NewSemester): string | null {
+  if (input.semester.midsemDate === null && input.courses.some((c) => c.windowMode === "split")) return SPLIT_NEEDS_MIDSEM;
   const codes = new Set<string>();
   for (const c of input.courses) {
     const code = c.code.trim().toLowerCase();

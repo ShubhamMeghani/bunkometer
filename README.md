@@ -45,7 +45,7 @@ The college preset applies to every new course, and every rule can be edited per
 - **What counts:** lectures always. Tutorials only if "tutorials count" is on. Labs never count toward the percentage.
 - **Cancelled classes** don't count at all. **Extra classes** count like any other.
 - **Medical** counts as attended. An optional cap per course limits how many medical sessions count; later ones count as absent. The earliest medical sessions in the semester count first.
-- **Evaluation window:** the whole semester, or split into a **midsem** window (start → midsem date, inclusive) and an **endsem** window (the day after midsem → end). Each split window must meet the requirement on its own.
+- **Evaluation window:** the whole semester, or split into a **midsem** window (start → midsem date, inclusive) and an **endsem** window (the day after midsem → end). Each split window must meet the requirement on its own. The semester's midsem date is optional; it's needed only when a course uses split windows, and it can't be removed while one does.
 - **Labs:** every missed lab (absent or medical) becomes a **pending makeup** until it is marked completed. A makeup is **overdue** once its makeup date has passed.
 - **Unmarked past classes** don't count either way; the app asks you to mark them. Absences you mark ahead of time count straight away.
 
@@ -93,8 +93,8 @@ SPEC.md §4.4 has all 14 worked examples and the edge cases.
 
 | Command | What it runs |
 |---|---|
-| `npm run check` | Lint, typecheck and **109 unit tests** (Vitest). This is exactly what CI runs on `ubuntu-24.04`. |
-| `npm run test:e2e` | **38 Playwright E2E tests** on a production build with a mobile viewport, against the dev database |
+| `npm run check` | Lint, typecheck and **115 unit tests** (Vitest). This is exactly what CI runs on `ubuntu-24.04`. |
+| `npm run test:e2e` | **40 Playwright E2E tests** on a production build with a mobile viewport, against the dev database |
 | `npm run db:generate` · `npm run db:migrate` | Create · apply SQL migrations (`drizzle/`) |
 
 The unit tests cover:
@@ -146,7 +146,7 @@ This project was built with Spec-Driven Development: requirements → acceptance
 
 | File | Role |
 |---|---|
-| [SPEC.md](SPEC.md) | The specification: goal, users, constraints, data model, exact formulas with worked examples, 51 EARS requirements (R1–R51), 47 acceptance criteria (AC-1–AC-47), deployment risks, decisions, changelog |
+| [SPEC.md](SPEC.md) | The specification: goal, users, constraints, data model, exact formulas with worked examples, 52 EARS requirements (R1–R52), 49 acceptance criteria (AC-1–AC-49), deployment risks, decisions, changelog |
 | [PLAN.md](PLAN.md) | The build plan: 12 phases with [AUTO]/[HUMAN] tasks, the rules followed during the autonomous build, the AC status and evidence table, and build notes |
 | `tests/unit/`, `e2e/` | One test file per AC, named in PLAN.md's AC table |
 | Git history | One commit per phase, each referencing the `R#` / `AC-#` IDs it delivers |

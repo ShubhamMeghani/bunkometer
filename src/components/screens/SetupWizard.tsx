@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { COURSE_DEFAULTS, nextColour, type NewSemester } from "@/lib/data/schemas";
-import { validateNewSemester } from "@/lib/data/mutations";
+import { midsemRemovalBlock, validateNewSemester } from "@/lib/data/mutations";
 import { formatDayShort } from "@/lib/engine/dates";
 import type { Course, NoClassPeriod, Slot } from "@/lib/engine/types";
 import { KIND_LABEL, WEEKDAY_NAMES, timeRange } from "@/lib/ui/format";
@@ -26,7 +26,7 @@ export function SetupWizard({
 }) {
   const router = useRouter();
   const [step, setStep] = useState(0);
-  const [semester, setSemester] = useState<SemesterFields>({ name: "", startDate: "", midsemDate: "", endDate: "" });
+  const [semester, setSemester] = useState<SemesterFields>({ name: "", startDate: "", midsemDate: null, endDate: "" });
   const [courses, setCourses] = useState<Course[]>([]);
   const [slots, setSlots] = useState<Slot[]>([]);
   const [periods, setPeriods] = useState<NoClassPeriod[]>([]);
@@ -59,6 +59,10 @@ export function SetupWizard({
         <>
           <Card>
             <SemesterForm
+              check={(s) => {
+                const block = s.midsemDate === null ? midsemRemovalBlock(courses) : null;
+                return block ? { field: "midsemDate", message: block } : null;
+              }}
               initial={semester}
               submitLabel="Next"
               onSubmit={(s) => {
@@ -83,6 +87,7 @@ export function SetupWizard({
             <h2 className="font-bold">Add your courses</h2>
             <CourseForm
               key={courses.length}
+              splitHint={semester.midsemDate ? undefined : "Add a midsem date in step 1 (Dates) to use split windows."}
               initial={newCourse}
               submitLabel="Add course"
               onSubmit={(c) => {

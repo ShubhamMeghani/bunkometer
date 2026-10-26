@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Spec | [SPEC.md **v0.4**](SPEC.md). SPEC says *what* to build; this plan says *in what order and how it is checked*. |
+| Spec | [SPEC.md **v0.5**](SPEC.md). SPEC says *what* to build; this plan says *in what order and how it is checked*. |
 | Repo | https://github.com/ShubhamMeghani/bunkometer (branch `main`) |
 | Production URL | https://bunkometer.vercel.app (demo: https://bunkometer.vercel.app/demo) |
 | Status legend | `todo` · `pass` · `fail` · `Pending (human)` |
@@ -38,7 +38,7 @@ Run one test file with `npx vitest run tests/unit/engine/budget.test.ts` or `npx
 
 ## Rules for the autonomous build
 
-1. **SPEC.md (v0.4) is the source of truth.** Build what its requirements and ACs say, and nothing extra. Every task below cites the `R#` / `AC-#` it serves.
+1. **SPEC.md (v0.5) is the source of truth.** Build what its requirements and ACs say, and nothing extra. Every task below cites the `R#` / `AC-#` it serves.
 2. **One commit per phase.** Commit only when all of these hold:
    - every "Done when" AC for the phase passes;
    - `npm run check` is green;
@@ -351,6 +351,8 @@ Evidence is filled in when an AC passes, as the test file plus the commit (Unit/
 | AC-45 | Manual | P12 | pass | Owner report 2026-10-22: installed from Android Chrome, opens standalone |
 | AC-46 | Unit | P2 | pass | `tests/unit/engine/cant-recover.test.ts` (3) · P2 commit |
 | AC-47 | E2E | P11 (privacy, SPEC v0.4) | pass | `e2e/privacy.spec.ts` (3 tests) + `/privacy` in `e2e/a11y.spec.ts` and `e2e/access.spec.ts` · privacy commit |
+| AC-48 | Unit | Optional midsem (SPEC v0.5) | pass | `tests/unit/midsem-optional.test.ts` (6 tests) · midsem commit |
+| AC-49 | E2E | Optional midsem (SPEC v0.5) | pass | `e2e/midsem-optional.spec.ts` (2 tests) · midsem commit |
 
 ## Build notes
 
@@ -381,3 +383,9 @@ Choices made during the build, one line each: date, phase, the choice, and why.
 
   Screenshot audit at 360 and 1440 px in both themes, before and after. Full suite: 109 unit and 38 E2E tests, run against a fresh server on :3103 because a stale local process held :3100; zero server errors. A scratch axe + 360 px + tap-target audit of all demo screens passed in both themes.
 - 2026-10-26 · Owner pushed `e9a3276` (UI polish) and checked it on a phone; they re-confirmed AC-44's outside-account sign-in. Evidence updated and pushed.
+- 2026-10-26 · SPEC v0.5 · The midsem date is optional (R7, R8, R9, new R52; AC-48, AC-49).
+  - Migration `0001_optional_midsem` only relaxes a constraint, so existing rows stay valid. It's applied to `dev`; Production gets it from `vercel-build` on the next push.
+  - The split option is disabled with a hint when there's no midsem date; the reducer and server refuse it as a backstop.
+  - Clearing the midsem date while split courses exist shows an inline error naming them.
+  - As a safety net only, the engine treats a split course with no midsem date as whole.
+  - Full suite: 115 unit and 40 E2E tests, against a fresh server on :3104 because stale local processes held earlier ports; zero server errors.

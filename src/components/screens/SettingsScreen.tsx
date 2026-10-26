@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { marksForCourse, marksForSlot } from "@/lib/data/mutations";
+import { marksForCourse, marksForSlot, midsemRemovalBlock } from "@/lib/data/mutations";
 import { COURSE_DEFAULTS, nextColour } from "@/lib/data/schemas";
 import { formatDayShort } from "@/lib/engine/dates";
 import type { Course, NoClassPeriod, Slot } from "@/lib/engine/types";
@@ -66,6 +66,10 @@ export function SettingsScreen({ account, extra }: { account?: AccountActions; e
         </h2>
         <Card>
           <SemesterForm
+            check={(s) => {
+              const block = s.midsemDate === null ? midsemRemovalBlock(courses) : null;
+              return block ? { field: "midsemDate", message: block } : null;
+            }}
             key={`${semester.id}-${semester.startDate}-${semester.midsemDate}-${semester.endDate}-${semester.name}`}
             initial={semester}
             submitLabel="Save semester"
@@ -291,6 +295,7 @@ export function SettingsScreen({ account, extra }: { account?: AccountActions; e
       >
         {editing?.kind === "course" && (
           <CourseForm
+            splitHint={semester.midsemDate ? undefined : "Add a midsem date under Settings → Semester to use split windows."}
             initial={editing.course}
             submitLabel={editing.isNew ? "Add course" : "Save course"}
             onSubmit={async (c) => {

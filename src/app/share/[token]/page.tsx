@@ -34,7 +34,8 @@ export default async function SharePage({ params }: { params: Promise<{ token: s
       <header>
         <h1 className="text-2xl font-bold">{semester.name}</h1>
         <p className="text-muted">
-          {formatDayLong(semester.startDate)} – {formatDayLong(semester.endDate)} · midsem {formatDayShort(semester.midsemDate)}
+          {formatDayLong(semester.startDate)} – {formatDayLong(semester.endDate)}
+          {semester.midsemDate ? ` · midsem ${formatDayShort(semester.midsemDate)}` : ""}
         </p>
       </header>
 
