@@ -347,7 +347,7 @@ Evidence is filled in when an AC passes, as the test file plus the commit (Unit/
 | AC-41 | Deploy | P1 (re-checked P12) | pass | 2026-10-22, `curl` on production: `GET /api/health` → 200 `{"ok":true,"db":true}`; `GET /demo` → 200, no redirect (also `/privacy` → 200; signed-out `/today` → 307 to `/`) |
 | AC-42 | Deploy | P1 (re-checked P12) | pass | 2026-10-22, `curl https://bunkometer.vercel.app/api/auth/providers` → 200, only `google` listed (no `test-login`) |
 | AC-43 | Deploy | P1 (re-checked P12) | pass | GitHub Actions run 39751189401 on `main` @ `83f884f`: success; job `check` on `ubuntu-24.04` with steps Lint, Typecheck, Unit tests all successful (https://github.com/ShubhamMeghani/bunkometer/actions/runs/39751189401) |
-| AC-44 | Manual | P12 | pass | Owner report 2026-10-22: Google sign-in on production works on the phone; the same mark shows on phone and laptop. Consent screen published "In production" (H4). A Google account that is not a test user also signed in successfully (owner report, consent screen "In production"). All three AC-44 checks pass. |
+| AC-44 | Manual | P12 | pass | Owner report 2026-10-22: Google sign-in on production works on the phone; the same mark shows on phone and laptop. Consent screen published "In production" (H4). A Google account that is not a test user also signed in successfully (owner report, consent screen "In production"). All three AC-44 checks pass. Re-confirmed by the owner on 2026-10-26 after the UI polish (`e9a3276`) went live; production `/api/health` 200 on the same day. |
 | AC-45 | Manual | P12 | pass | Owner report 2026-10-22: installed from Android Chrome, opens standalone |
 | AC-46 | Unit | P2 | pass | `tests/unit/engine/cant-recover.test.ts` (3) · P2 commit |
 | AC-47 | E2E | P11 (privacy, SPEC v0.4) | pass | `e2e/privacy.spec.ts` (3 tests) + `/privacy` in `e2e/a11y.spec.ts` and `e2e/access.spec.ts` · privacy commit |
@@ -380,3 +380,4 @@ Choices made during the build, one line each: date, phase, the choice, and why.
   - two-column layout on desktop; reduced-motion-safe entrance and press transitions.
 
   Screenshot audit at 360 and 1440 px in both themes, before and after. Full suite: 109 unit and 38 E2E tests, run against a fresh server on :3103 because a stale local process held :3100; zero server errors. A scratch axe + 360 px + tap-target audit of all demo screens passed in both themes.
+- 2026-10-26 · Owner pushed `e9a3276` (UI polish) and checked it on a phone; they re-confirmed AC-44's outside-account sign-in. Evidence updated and pushed.
