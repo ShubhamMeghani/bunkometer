@@ -309,7 +309,7 @@ cur  = floor(1000·A/H) / 10             (shown truncated, never rounded up)</pr
     </li>
     <li><strong>v0.3.</strong> Region correction: Neon was actually in AWS us-east-1, so Vercel kept <code>iad1</code> instead of Singapore.</li>
     <li><strong>v0.4.</strong> Added R51, a public <code>/privacy</code> page, because Google requires a privacy-policy URL to publish the OAuth consent screen.</li>
-    <li><strong>v0.5.</strong> The midsem date became optional. It's only needed for split windows, and new R52 blocks removing it while split courses exist. At the time of writing, this is committed locally but not yet deployed.</li>
+    <li><strong>v0.5.</strong> The midsem date became optional. It's only needed for split windows, and new R52 blocks removing it while split courses exist. It shipped as commit <code>c0ad9f6</code> and is live in production, where the migration (making <code>midsem_date</code> nullable) was applied during the Vercel build.</li>
   </ul>
 </div>
 
