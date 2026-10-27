@@ -1,0 +1,635 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bunk-o-Meter: viva prep</title>
+<meta name="description" content="Interview-style viva preparation for the Bunk-o-Meter project: architecture, maths, SDD process, testing and a question bank with model answers.">
+<style>
+  :root {
+    --bg: #f5f6fa; --surface: #ffffff; --surface-2: #eceff5; --line: #d3d8e3;
+    --ink: #121621; --muted: #4a5366; --accent: #3445c8; --accent-ink: #ffffff;
+    --safe: #166534; --warn: #854d0e; --danger: #b91c1c; --code-bg: #eceff5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0b0d12; --surface: #151922; --surface-2: #1e2430; --line: #2c3442;
+      --ink: #eef1f6; --muted: #a6b0c2; --accent: #8b9cff; --accent-ink: #0b0d12;
+      --safe: #4ade80; --warn: #fbbf24; --danger: #fb8a8a; --code-bg: #1e2430;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 16px/1.6 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 24px 16px 80px; }
+  header.top { margin-bottom: 24px; }
+  .eyebrow { color: var(--accent); font-weight: 800; letter-spacing: .12em; text-transform: uppercase; font-size: 12px; margin: 0; }
+  h1 { font-size: 32px; line-height: 1.15; margin: 4px 0 8px; letter-spacing: -.02em; }
+  h2 { font-size: 24px; margin: 40px 0 12px; letter-spacing: -.01em; scroll-margin-top: 16px; }
+  h3 { font-size: 18px; margin: 24px 0 8px; scroll-margin-top: 16px; }
+  p, li { color: var(--ink); }
+  .muted { color: var(--muted); }
+  a { color: var(--accent); }
+  code, kbd { font: 14px/1.4 ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace; background: var(--code-bg); padding: 1px 5px; border-radius: 6px; overflow-wrap: anywhere; }
+  pre { background: var(--code-bg); padding: 12px; border-radius: 12px; overflow-x: auto; font: 13px/1.5 ui-monospace, Consolas, monospace; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px; margin: 12px 0; }
+  nav.toc ol { padding-left: 20px; margin: 8px 0; }
+  nav.toc li { margin: 2px 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  th, td { text-align: left; padding: 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 700; font-size: 13px; }
+  .scroll { overflow-x: auto; }
+  details { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; margin: 8px 0; }
+  details > summary { cursor: pointer; padding: 12px 14px; font-weight: 700; min-height: 44px; list-style: none; display: flex; gap: 8px; align-items: flex-start; }
+  details > summary::-webkit-details-marker { display: none; }
+  details > summary::before { content: "▸"; color: var(--accent); flex: none; }
+  details[open] > summary::before { content: "▾"; }
+  details > div { padding: 0 16px 14px 34px; }
+  details > div p:first-child { margin-top: 0; }
+  .star { color: var(--warn); font-weight: 800; flex: none; }
+  .pill { display: inline-block; border: 1px solid var(--line); background: var(--surface-2); border-radius: 999px; padding: 1px 10px; font-size: 13px; font-weight: 700; }
+  .safe { color: var(--safe); } .warn { color: var(--warn); } .danger { color: var(--danger); }
+  .grid2 { display: grid; gap: 12px; grid-template-columns: 1fr; }
+  @media (min-width: 720px) { .grid2 { grid-template-columns: 1fr 1fr; } }
+  ol.flow { padding-left: 22px; } ol.flow li { margin: 6px 0; }
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 0; }
+  button { font: inherit; font-weight: 700; min-height: 44px; padding: 0 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); cursor: pointer; }
+  button:focus-visible, summary:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  svg text { font-family: ui-sans-serif, system-ui, "Segoe UI", sans-serif; }
+  footer { margin-top: 48px; font-size: 14px; color: var(--muted); }
+  @media print { details { break-inside: avoid; } details > div { display: block !important; } .controls { display: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <p class="eyebrow">Bunk-o-Meter · viva prep</p>
+  <h1>Know your project, then practise saying it.</h1>
+  <p class="muted">Everything here matches the code, SPEC.md (v0.5), PLAN.md and the git history as of 27 Oct 2026. Part A explains the project; Part B is a question bank with model answers. ★ marks the 10 most likely questions.</p>
+</header>
+
+<nav class="toc card" aria-label="Contents">
+  <strong>Contents</strong>
+  <ol>
+    <li><a href="#a">Part A: Understand the project</a>
+      <ol>
+        <li><a href="#pitch">1-minute pitch</a></li>
+        <li><a href="#arch">Architecture and request flow</a></li>
+        <li><a href="#features">How the features are built</a></li>
+        <li><a href="#data">Data model and the key algorithm</a></li>
+        <li><a href="#stack">Tech stack and why</a></li>
+        <li><a href="#sdd">Spec-Driven Development</a></li>
+        <li><a href="#testing">Testing, CI and deployment</a></li>
+        <li><a href="#problems">Real problems and fixes</a></li>
+        <li><a href="#limits">Limitations and next steps</a></li>
+      </ol>
+    </li>
+    <li><a href="#b">Part B: Question bank (40 questions)</a>
+      <ol>
+        <li><a href="#top10">The 10 most likely ★</a></li>
+        <li><a href="#q-product">Product and users</a> · <a href="#q-sdd">SDD and requirements</a> · <a href="#q-arch">Architecture and routing</a></li>
+        <li><a href="#q-features">Features and code</a> · <a href="#q-db">Database and algorithms</a> · <a href="#q-sec">Security and privacy</a></li>
+        <li><a href="#q-test">Testing and CI</a> · <a href="#q-scale">Scalability and failures</a> · <a href="#q-deploy">Deployment and cost</a></li>
+        <li><a href="#q-ai">AI-assisted development</a> · <a href="#q-tradeoffs">Trade-offs</a> · <a href="#q-future">Future work</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+
+<!-- ============================ PART A ============================ -->
+<h2 id="a">Part A · Understand the project</h2>
+
+<h3 id="pitch">1. The 1-minute pitch</h3>
+<div class="card">
+  <p><strong>Problem.</strong> Indian college students have to keep attendance above a cut-off, usually 80%, but the real rules are fiddly: 79.99% fails, medical leave counts as present, tutorials may or may not count, some courses check midsem and endsem separately, and missed labs need makeups. Students guess, and guessing wrong means being barred from exams.</p>
+  <p><strong>Who it's for.</strong> Students on their phones, marking each class in one tap. Classmates can import a shared timetable instead of typing it in.</p>
+  <p><strong>What it does.</strong> For every course and evaluation window it shows exactly how many more classes you can skip ("Can skip 5 more"), or what you must do ("Attend next 4 to reach 80%", "No skips left", "Can't recover in this window · best 71.4%"). It also has a trip planner (Go / Careful / No-go), bulk marking for sick days, a history calendar with stats, CSV export, and shareable timetables.</p>
+  <p><strong>What stands out.</strong></p>
+  <ul>
+    <li><strong>Exact maths.</strong> Pass/fail and budgets use integer arithmetic only, checked against a 92,256-case brute-force test.</li>
+    <li><strong>Built from a spec.</strong> 52 EARS requirements and 49 acceptance criteria, each mapped to a test.</li>
+    <li><strong>A demo anyone can use.</strong> <code>/demo</code> runs with no sign-in.</li>
+    <li><strong>Built to standard.</strong> Installable PWA, WCAG AA contrast in both themes, private by design.</li>
+  </ul>
+  <p><strong>Live:</strong> <a href="https://bunkometer.vercel.app">https://bunkometer.vercel.app</a>. Evaluators should start at <a href="https://bunkometer.vercel.app/demo">/demo</a>.</p>
+</div>
+
+<h3 id="arch">2. Architecture and request flow</h3>
+<div class="card">
+  <svg viewBox="0 0 680 400" role="img" aria-labelledby="arch-title arch-desc" style="width:100%;height:auto">
+    <title id="arch-title">Bunk-o-Meter architecture</title>
+    <desc id="arch-desc">The phone browser runs React screens, the DataProvider and the pure engine. It talks to Next.js on Vercel through server actions and route handlers. Next.js talks to Neon Postgres over HTTPS and to Google for sign-in. The demo uses browser localStorage instead of the server. GitHub Actions runs CI on every push.</desc>
+    <defs>
+      <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/></marker>
+    </defs>
+    <!-- Browser -->
+    <rect x="12" y="20" width="250" height="220" rx="14" fill="var(--surface-2)" stroke="var(--line)"/>
+    <text x="28" y="46" font-size="15" font-weight="700" fill="var(--ink)">Phone browser (React 19)</text>
+    <rect x="28" y="60" width="218" height="40" rx="10" fill="var(--surface)" stroke="var(--line)"/>
+    <text x="40" y="85" font-size="13" fill="var(--ink)">Screens: Today, Courses, Plan…</text>
+    <rect x="28" y="110" width="218" height="40" rx="10" fill="var(--surface)" stroke="var(--line)"/>
+    <text x="40" y="135" font-size="13" fill="var(--ink)">DataProvider (optimistic queue)</text>
+    <rect x="28" y="160" width="218" height="40" rx="10" fill="var(--surface)" stroke="var(--accent)"/>
+    <text x="40" y="185" font-size="13" fill="var(--ink)">Pure engine (integer maths)</text>
+    <text x="28" y="225" font-size="12" fill="var(--muted)">Demo: localStorage only, no server</text>
+    <!-- Vercel -->
+    <rect x="330" y="20" width="338" height="220" rx="14" fill="var(--surface-2)" stroke="var(--line)"/>
+    <text x="346" y="46" font-size="15" font-weight="700" fill="var(--ink)">Next.js 16 on Vercel (iad1)</text>
+    <rect x="346" y="60" width="306" height="40" rx="10" fill="var(--surface)" stroke="var(--line)"/>
+    <text x="358" y="85" font-size="13" fill="var(--ink)">Server Components: getAppData()</text>
+    <rect x="346" y="110" width="306" height="40" rx="10" fill="var(--surface)" stroke="var(--line)"/>
+    <text x="358" y="135" font-size="13" fill="var(--ink)">Server Action mutate(): zod → reducer → diff</text>
+    <rect x="346" y="160" width="306" height="40" rx="10" fill="var(--surface)" stroke="var(--line)"/>
+    <text x="358" y="185" font-size="13" fill="var(--ink)">Route handlers: /api/auth/*, /api/health</text>
+    <text x="346" y="225" font-size="12" fill="var(--muted)">Auth.js v5 · JWT session cookie</text>
+    <!-- browser <-> server -->
+    <line x1="264" y1="120" x2="328" y2="120" stroke="var(--muted)" stroke-width="2" marker-end="url(#arrow)" marker-start="url(#arrow)"/>
+    <text x="270" y="112" font-size="11" fill="var(--muted)">HTTPS</text>
+    <!-- Neon -->
+    <rect x="346" y="290" width="200" height="80" rx="14" fill="var(--surface-2)" stroke="var(--line)"/>
+    <text x="362" y="318" font-size="15" font-weight="700" fill="var(--ink)">Neon Postgres</text>
+    <text x="362" y="340" font-size="12" fill="var(--muted)">main = production</text>
+    <text x="362" y="357" font-size="12" fill="var(--muted)">dev = local, preview, E2E</text>
+    <line x1="446" y1="242" x2="446" y2="288" stroke="var(--muted)" stroke-width="2" marker-end="url(#arrow)"/>
+    <text x="454" y="270" font-size="11" fill="var(--muted)">Drizzle · HTTP batch</text>
+    <!-- Google -->
+    <rect x="566" y="290" width="102" height="80" rx="14" fill="var(--surface-2)" stroke="var(--line)"/>
+    <text x="580" y="326" font-size="14" font-weight="700" fill="var(--ink)">Google</text>
+    <text x="580" y="346" font-size="12" fill="var(--muted)">OAuth</text>
+    <line x1="617" y1="242" x2="617" y2="288" stroke="var(--muted)" stroke-width="2" marker-end="url(#arrow)" marker-start="url(#arrow)"/>
+    <!-- CI -->
+    <rect x="12" y="290" width="250" height="80" rx="14" fill="var(--surface-2)" stroke="var(--line)"/>
+    <text x="28" y="318" font-size="15" font-weight="700" fill="var(--ink)">GitHub → Vercel</text>
+    <text x="28" y="340" font-size="12" fill="var(--muted)">CI: lint · typecheck · unit</text>
+    <text x="28" y="357" font-size="12" fill="var(--muted)">vercel-build: migrate → build</text>
+  </svg>
+
+  <div class="grid2">
+    <div>
+      <p><strong>Flow 1: tapping "Present" on Today</strong></p>
+      <ol class="flow">
+        <li><code>MarkControl</code> in <code>src/components/attendance.tsx</code> calls <code>run({type:"mark", target, status})</code>.</li>
+        <li><code>DataProvider.run</code> (<code>src/components/data/DataProvider.tsx</code>):
+          <ul>
+            <li>validates on the client with <code>validateMutation</code>;</li>
+            <li>applies the change straight away with the shared reducer <code>applyMutation</code> (an optimistic queue);</li>
+            <li>calls the server action.</li>
+          </ul>
+        </li>
+        <li><code>mutate()</code> in <code>src/app/actions.ts</code>:
+          <ul>
+            <li>parses the input with zod and reads the user from the Auth.js JWT;</li>
+            <li><code>loadSnapshot(user, activeSemester)</code> (<code>src/lib/db/repo.ts</code>, one batched Neon round trip);</li>
+            <li><code>validateMutation</code>, then <code>applyMutation</code>;</li>
+            <li><code>diffSnapshots</code> → <code>writeDiff</code>, written as one <code>db.batch</code> transaction.</li>
+          </ul>
+        </li>
+        <li>On <code>{ok:true}</code> the change is confirmed. On an error, it is rolled back and a toast with <strong>Retry</strong> appears (R21).</li>
+      </ol>
+    </div>
+    <div>
+      <p><strong>Flow 2: opening Courses</strong></p>
+      <ol class="flow">
+        <li><code>src/app/(app)/layout.tsx</code> (a Server Component) calls <code>getAppData()</code> (<code>src/lib/server/app-data.ts</code>):
+          <ul>
+            <li><code>requireUser()</code>; no user means a redirect to <code>/</code>;</li>
+            <li><code>getToday()</code>: the IST date, or the test-only <code>e2e_today</code> cookie;</li>
+            <li><code>listSemesters</code> and <code>loadSnapshot</code>.</li>
+          </ul>
+        </li>
+        <li>The layout renders <code>&lt;DataProvider initial={snapshot}&gt;</code>. <code>CoursesScreen</code> calls the engine's <code>summarizeCourses()</code>, which generates sessions, computes per-window budgets and lab status, and sorts danger first.</li>
+        <li><code>CourseCard</code> shows the status chip, the headline, the meter and the metrics.</li>
+      </ol>
+      <p class="muted">There's no middleware/proxy. Every signed-in page and action checks the user on the server, which also logs out sessions of deleted accounts (R6).</p>
+    </div>
+  </div>
+</div>
+
+<h3 id="features">3. How the main features are built</h3>
+<div class="card scroll">
+  <table>
+    <thead><tr><th>Feature</th><th>Key files</th><th>How</th></tr></thead>
+    <tbody>
+      <tr><td>Attendance maths</td><td><code>src/lib/engine/budget.ts</code>, <code>sessions.ts</code>, <code>labs.ts</code>, <code>summary.ts</code></td><td>Pure TypeScript with no I/O and no clock reads (a purity test enforces this). Sessions are generated from weekly slots minus holidays, then marks are attached.</td></tr>
+      <tr><td>One update logic everywhere</td><td><code>src/lib/data/mutations.ts</code>, <code>diff.ts</code>, <code>schemas.ts</code></td><td><code>applyMutation</code> is used by the optimistic UI, the demo store and the server. The server writes only the row diff.</td></tr>
+      <tr><td>Database</td><td><code>src/lib/db/schema.ts</code>, <code>repo.ts</code>, <code>drizzle/</code></td><td>Drizzle on the Neon HTTP driver. SQL migrations are committed, and <code>vercel-build</code> runs them.</td></tr>
+      <tr><td>Sign-in</td><td><code>src/lib/auth/auth.ts</code>, <code>test-mode.ts</code>, <code>src/lib/server/session.ts</code></td><td>Auth.js v5: Google provider, JWT sessions, user upserted on sign-in. A test-only credentials login exists only when <code>E2E_TEST_AUTH=1</code> and not on Vercel.</td></tr>
+      <tr><td>Today, Courses, History, Settings</td><td><code>src/components/screens/*</code>, <code>attendance.tsx</code></td><td>Client screens read <code>useData()</code>. Every change goes through <code>run(mutation)</code>.</td></tr>
+      <tr><td>Trip planner</td><td><code>src/lib/engine/trip.ts</code>, <code>PlanScreen.tsx</code></td><td>Treats unmarked sessions in <code>[max(from, today), min(to, end)]</code> as absent per window, re-runs the budget and gives Go/Careful/No-go. Nothing is saved.</td></tr>
+      <tr><td>Bulk marking</td><td><code>engine/bulk.ts</code>, <code>BulkMark.tsx</code></td><td>Previews how many sessions change and how many marks get overwritten, then saves everything in one batch.</td></tr>
+      <tr><td>History and stats</td><td><code>engine/stats.ts</code>, <code>csv.ts</code>, <code>HistoryScreen.tsx</code>, <code>TrendChart.tsx</code></td><td>Calendar, streaks, most-skipped weekday, a weekly trend chart in hand-written SVG, and RFC 4180 CSV with a formula-injection guard.</td></tr>
+      <tr><td>Shared timetables</td><td><code>src/lib/db/share.ts</code>, <code>src/app/share/[token]</code></td><td>A 128-bit random token gives a public read-only page with no marks and no owner details. Import copies everything with new IDs. Revoking the link turns it into a 404.</td></tr>
+      <tr><td>Demo</td><td><code>src/lib/demo/seed.ts</code>, <code>components/demo/DemoShell.tsx</code></td><td>A deterministic seed frozen at Wed 21 Oct 2026, on the same screens and reducer, stored in localStorage, and never POSTs.</td></tr>
+      <tr><td>PWA and theme</td><td><code>src/app/manifest.ts</code>, <code>public/sw.js</code>, <code>app/icons/[name]/route.tsx</code>, <code>Theme.tsx</code></td><td>Icons are generated at build with <code>next/og</code>. The service worker serves pages network-first and assets cache-first. An inline head script sets the theme before first paint.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h3 id="data">4. Data model and the key algorithm</h3>
+<div class="card">
+  <p><strong>Tables</strong> (<code>src/lib/db/schema.ts</code>). They cascade from <code>users</code>, so deleting a user deletes everything they own in one statement.</p>
+  <ul>
+    <li><code>users</code>: <code>google_id</code>, <code>email</code>, <code>name</code>, <code>active_semester_id</code>. That's all the personal data.</li>
+    <li><code>semesters</code>: <code>start_date</code>, <code>end_date</code>, and an optional <code>midsem_date</code> (made optional in v0.5).</li>
+    <li><code>courses</code>: <code>required_pct</code>, <code>count_tutorials</code>, <code>medical_cap</code>, <code>window_mode</code>, and a case-insensitive unique code per semester.</li>
+    <li><code>slots</code>: weekly timetable entries (weekday, start time, duration, kind, optional valid-from/to dates).</li>
+    <li><code>no_class_periods</code>: holidays and exams.</li>
+    <li><code>sessions</code>: a row exists <em>only</em> for a marked scheduled class, or for an extra class. Unmarked scheduled classes are generated on the fly. <code>(slot_id, date)</code> is unique.</li>
+  </ul>
+  <p><strong>Counts per course and window</strong> (SPEC §4.4):</p>
+  <ul>
+    <li><code>H</code> = held (marked present, absent or medical)</li>
+    <li><code>A</code> = attended (present, plus medical within the cap)</li>
+    <li><code>R</code> = unmarked classes from today on</li>
+    <li><code>p</code> = required %</li>
+  </ul>
+  <p><strong>Formulas:</strong></p>
+<pre>met  ⇔ 100·A ≥ p·H                      (integers: 79.99% fails 80%)
+K    = 100·(A+R) − p·(H+R)              (slack, in hundredths of a class)
+S    = min(R, floor(K/100))  if K ≥ 0   (skips left)
+N    = ceil((p·H − 100·A) / (100 − p))  (classes to attend in a row to get back above p)
+cur  = floor(1000·A/H) / 10             (shown truncated, never rounded up)</pre>
+  <p><strong>Status</strong> is decided by the first rule that matches:</p>
+  <ol>
+    <li>no classes → <span class="pill">none</span></li>
+    <li><code>R=0</code> → Final meets/below</li>
+    <li><code>K&lt;0</code> → <span class="danger">Can't recover in this window</span></li>
+    <li><code>S=0</code> → <span class="danger">No skips left</span></li>
+    <li>below now → <span class="warn">Attend next N</span></li>
+    <li><code>S≤2</code> → <span class="warn">warning</span></li>
+    <li>otherwise → <span class="safe">safe</span></li>
+  </ol>
+  <p><strong>Worked example (SPEC E1).</strong> p = 80, H = 20, A = 17 (85%), R = 20.</p>
+  <ul>
+    <li><code>K = 100·37 − 80·40 = 3700 − 3200 = 500</code>, so <code>S = min(20, 5) = 5</code>: "Can skip 5 more".</li>
+    <li>Check: skipping 5 ends at 32/40 = exactly 80%, which passes (≥). A 6th skip ends at 31/40 = 77.5%, which fails.</li>
+  </ul>
+  <p><strong>Split windows.</strong> Midsem runs <code>[start, midsem]</code>, including the midsem date; endsem runs <code>[midsem+1, end]</code>. Each window must pass on its own. Example: midsem finished at 83.3%, but endsem is 4/6 with 18 left. That gives "Attend next 4 to reach 80%" (N = ceil(80/20) = 4), even though the combined whole-semester number would say "Can skip 3 more".</p>
+</div>
+
+<h3 id="stack">5. Tech stack and why</h3>
+<div class="card scroll">
+  <table>
+    <thead><tr><th>Choice (version)</th><th>Why</th><th>Alternative considered</th></tr></thead>
+    <tbody>
+      <tr><td>Next.js 16 App Router, React 19</td><td>Server Components and Server Actions keep the database on the server with no hand-written API, and it deploys to Vercel with no configuration.</td><td>Vite SPA plus an Express API (more glue, and CORS)</td></tr>
+      <tr><td>TypeScript 6.0.3 (strict)</td><td>Pinned below 7 because typescript-eslint supports <code>&lt;6.1</code> (a PLAN build note).</td><td>TypeScript 7 (native port), once the tooling catches up</td></tr>
+      <tr><td>Neon Postgres (free tier)</td><td>Serverless HTTP driver (no connection pool to exhaust), and separate <code>main</code> and <code>dev</code> branches for prod and tests.</td><td>Supabase, or SQLite/Turso</td></tr>
+      <tr><td>Drizzle ORM 0.45</td><td>Typed SQL, plain committed SQL migrations, small runtime, and <code>batch</code> for transactions.</td><td>Prisma (heavier engine, slower cold starts)</td></tr>
+      <tr><td>Auth.js v5 (beta 32), JWT sessions</td><td>Google sign-in with no adapter tables, so only three personal fields are stored.</td><td>Clerk (hosted, keeps user data with a third party)</td></tr>
+      <tr><td>zod 4</td><td>One set of schemas validates input in the browser, the demo and the server.</td><td>valibot</td></tr>
+      <tr><td>Tailwind CSS 4 + CSS variables</td><td>Theme tokens give dark and light themes that each pass AA contrast.</td><td>CSS Modules</td></tr>
+      <tr><td>Vitest 5, Playwright 1.64 + axe</td><td>Fast unit tests for the maths. Real-browser E2E on a mobile viewport, with automated accessibility checks.</td><td>Jest, Cypress</td></tr>
+      <tr><td>Vercel Hobby, GitHub Actions</td><td>Free, deploys on push, and runs migrations in <code>vercel-build</code>.</td><td>Render or Fly.io</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h3 id="sdd">6. Spec-Driven Development</h3>
+<div class="card">
+  <p><strong>Order of work:</strong> SPEC → ACs → PLAN → tests → code.</p>
+  <ul>
+    <li><code>SPEC.md</code> came first: goal, constraints, data model, the exact formulas with 14 worked examples (E1–E14), and requirements in EARS form ("WHEN … THE SYSTEM SHALL …", "IF … THEN …"). Each requirement is tagged Must or Should.</li>
+    <li>Every acceptance criterion is pass/fail and tagged Unit, E2E, Deploy or Manual. There are now R1–R52 and AC-1–AC-49.</li>
+    <li><code>PLAN.md</code> split the build into 12 phases, with [AUTO] tasks for Claude Code and [HUMAN] tasks for me (Neon, Vercel, the Google OAuth client, real-device checks). It set the rules: one commit per phase, never push, never read <code>.env.local</code>, and stop only if a requirement or AC must change.</li>
+    <li>PLAN.md's AC table records the status and evidence (test file plus commit) for every AC, and its Build notes log every interpretation call.</li>
+  </ul>
+  <p><strong>Spec changes, and why:</strong></p>
+  <ul>
+    <li><strong>v0.2.</strong> I accepted all 12 open-question defaults, with two additions:
+      <ul>
+        <li>a course that can't reach the requirement even by attending everything shows <em>"Can't recover in this window · best X%"</em> (AC-46);</li>
+        <li>preview, local and E2E use the Neon <code>dev</code> branch, and only production uses <code>main</code>.</li>
+      </ul>
+    </li>
+    <li><strong>v0.3.</strong> Region correction: Neon was actually in AWS us-east-1, so Vercel kept <code>iad1</code> instead of Singapore.</li>
+    <li><strong>v0.4.</strong> Added R51, a public <code>/privacy</code> page, because Google requires a privacy-policy URL to publish the OAuth consent screen.</li>
+    <li><strong>v0.5.</strong> The midsem date became optional. It's only needed for split windows, and new R52 blocks removing it while split courses exist. At the time of writing, this is committed locally but not yet deployed.</li>
+  </ul>
+</div>
+
+<h3 id="testing">7. Testing, CI and deployment</h3>
+<div class="card">
+  <p><strong>Unit tests</strong> (Vitest): 115 at SPEC v0.5. They cover:</p>
+  <ul>
+    <li>every worked example, and a brute-force sweep of 92,256 cases checking <code>met</code>, <code>S</code> and <code>N</code> against their definitions;</li>
+    <li>the edge cases, trip planner, stats, CSV, validators and the demo seed;</li>
+    <li>a "no clock in the engine" purity test.</li>
+  </ul>
+  <p><strong>E2E tests</strong> (Playwright on a production build with a mobile viewport): 40. They cover:</p>
+  <ul>
+    <li>every flow, plus user isolation (B gets 404 or "Not found" on A's data);</li>
+    <li>rollback when a save fails;</li>
+    <li>an axe WCAG AA audit in both themes;</li>
+    <li>360 px layout and 44 px tap targets;</li>
+    <li>PWA offline mode;</li>
+    <li>a scan proving no DB driver or secret name reaches browser JavaScript.</li>
+  </ul>
+  <p><strong>CI:</strong> GitHub Actions on <code>ubuntu-24.04</code> runs lint, typecheck and unit tests on every push, with no secrets needed. E2E runs locally against the Neon <code>dev</code> branch. Tests sign in through a test-only provider and pin "today" with an <code>e2e_today</code> cookie, both of which exist only when <code>E2E_TEST_AUTH=1</code> and <code>VERCEL</code> is unset.</p>
+  <p><strong>Deploy:</strong> pushing to <code>main</code> deploys on Vercel. <code>vercel-build</code> runs <code>drizzle-kit migrate &amp;&amp; next build</code> against that environment's own <code>DATABASE_URL</code>.</p>
+  <p><strong>Secrets:</strong></p>
+  <ul>
+    <li>They live only in <code>.env.local</code> (gitignored) and in Vercel environment variables.</li>
+    <li><code>.claude/settings.json</code> denies the AI reading <code>.env*</code>, and it never printed environment values.</li>
+    <li>Production evidence:
+      <ul>
+        <li>AC-41: <code>/api/health</code> returns <code>{"ok":true,"db":true}</code>;</li>
+        <li>AC-42: <code>/api/auth/providers</code> lists only <code>google</code>;</li>
+        <li>AC-43: CI is green on <code>ubuntu-24.04</code>.</li>
+      </ul>
+    </li>
+  </ul>
+</div>
+
+<h3 id="problems">8. Real problems hit, and how they were fixed</h3>
+<div class="card">
+  <ol>
+    <li><strong>A test race showed up as a database error.</strong>
+      <ul>
+        <li><strong>Symptom:</strong> the server log showed a foreign-key violation on <code>sessions</code>.</li>
+        <li><strong>Cause:</strong> a test finished while its last optimistic save was still in flight. The cleanup then deleted the user, and the late insert failed.</li>
+        <li><strong>Fix:</strong> tests wait for the server-action response (<code>clickAndSave</code>). I also check the server log for errors after every full run.</li>
+      </ul>
+    </li>
+    <li><strong>The accessibility audit found broken markup.</strong> axe reported <code>&lt;ul&gt;</code> lists on Today wrapping their <code>&lt;li&gt;</code> cards in <code>&lt;div&gt;</code>s. I moved the date label inside the list item, and both themes now pass with zero serious violations.</li>
+    <li><strong>The test database stopped accepting the password.</strong>
+      <ul>
+        <li><strong>Symptom:</strong> during the UI polish, every database-backed E2E test failed with "password authentication failed".</li>
+        <li><strong>Diagnosis:</strong> a script printed only the error class, never the URL. Production was healthy, so it was the local dev credentials.</li>
+        <li><strong>Meanwhile:</strong> the tests that don't need the database still ran. Commits waited, because the rule is "full suite before commit".</li>
+        <li><strong>Fix:</strong> I updated <code>.env.local</code>, and the full suite went green.</li>
+      </ul>
+      <p class="muted">Also: stale local servers held port 3100, so suites ran against fresh ports.</p>
+    </li>
+  </ol>
+  <p class="muted">Smaller ones: TypeScript 7 broke typescript-eslint, so it's pinned to 6.0.3. Auth.js reported the test provider's id as <code>credentials</code>, which a unit test caught; the fix reads <code>options.id</code>.</p>
+</div>
+
+<h3 id="limits">9. Limitations and what I'd do next</h3>
+<div class="grid2">
+  <div class="card">
+    <p><strong>Limitations</strong></p>
+    <ul>
+      <li>No Google sign-in on preview deployments (Google doesn't allow wildcard redirect URIs).</li>
+      <li>Offline is read-only; there's no offline queue.</li>
+      <li>India time (Asia/Kolkata) only. Required % must be a whole number.</li>
+      <li>Absences marked ahead of time count immediately.</li>
+      <li>Free tier: Neon sleeps when idle, so the first request after a pause can be slow. The database is in us-east-1, far from India.</li>
+      <li>E2E isn't in CI, because it needs a database. No rate limiting.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <p><strong>Next steps</strong></p>
+    <ul>
+      <li>Run E2E in CI against a throwaway Neon branch created per run.</li>
+      <li>An offline queue for marks, using the same reducer, replayed on reconnect.</li>
+      <li>Optional reminders (a non-goal for v1).</li>
+      <li>Move the database and functions nearer India once paid regions make sense.</li>
+      <li>Rate limiting on server actions, and audit logging.</li>
+      <li>Timetable import from the college's PDF.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ============================ PART B ============================ -->
+<h2 id="b">Part B · Question bank</h2>
+<p class="muted">Each answer is written to be said out loud in about 30–45 seconds. ★ = most likely.</p>
+<div class="controls">
+  <button type="button" id="open-all">Open all answers</button>
+  <button type="button" id="close-all">Close all</button>
+  <button type="button" id="only-stars" aria-pressed="false">Show only ★</button>
+</div>
+
+<h3 id="top10">The 10 most likely ★</h3>
+<ol class="card">
+  <li><a href="#q1">What problem does it solve?</a></li>
+  <li><a href="#q4">What is SDD and how did you apply it?</a></li>
+  <li><a href="#q8">What happens when I tap "Present"?</a></li>
+  <li><a href="#q13">How do split windows work?</a></li>
+  <li><a href="#q16">Explain the skip formula.</a></li>
+  <li><a href="#q17">Why integer arithmetic?</a></li>
+  <li><a href="#q21">How do you stop one user reading another's data?</a></li>
+  <li><a href="#q26">What's your testing strategy?</a></li>
+  <li><a href="#q34">How did you use Claude Code, and how did you verify it?</a></li>
+  <li><a href="#q39">What would you do next?</a></li>
+</ol>
+
+<h3 id="q-product">Product and users</h3>
+<details id="q1" data-star><summary><span class="star" aria-label="likely">★</span>What problem does Bunk-o-Meter solve?</summary><div>
+<p>Students must stay above an attendance cut-off, usually 80%, but the real rules are complicated: 79.99% fails, medical counts as present, tutorials may not count, some courses check midsem and endsem separately, and missed labs need makeups. Students track this in their heads or in spreadsheets and get it wrong. Bunk-o-Meter turns one-tap marking into an exact answer per course and window: "Can skip 5 more", "Attend next 4 to reach 80%", or "Can't recover in this window".</p></div></details>
+<details id="q2"><summary>Who are the users, and what are the main scenarios?</summary><div>
+<p>The primary user is a student on a phone. Classmates import a shared timetable. Evaluators use the demo. The scenarios come from SPEC §2:</p>
+<ul>
+  <li>first-run setup;</li>
+  <li>marking each day;</li>
+  <li>"can I bunk Friday?";</li>
+  <li>planning a trip;</li>
+  <li>bulk-marking a sick week;</li>
+  <li>handling a missed lab;</li>
+  <li>fixing past days;</li>
+  <li>sharing a timetable;</li>
+  <li>deleting the account.</li>
+</ul></div></details>
+<details id="q3"><summary>Why is there a demo, and how does it differ from the real app?</summary><div>
+<p>So anyone, including the professor, can try every feature without a Google account. <code>/demo</code> runs the same screens and the same reducer on a deterministic seed frozen at Wed 21 Oct 2026. It has one course in danger, one very safe, and one pending makeup lab. Changes are stored only in localStorage, and a test proves the demo makes no POST requests. Sharing and account actions are disabled there.</p></div></details>
+
+<h3 id="q-sdd">SDD and requirements</h3>
+<details id="q4" data-star><summary><span class="star" aria-label="likely">★</span>What is Spec-Driven Development, and how did you apply it?</summary><div>
+<p>You write the specification and pass/fail acceptance criteria before any code, then build and verify against them. SPEC.md has the formulas with worked examples, 52 EARS requirements and 49 acceptance criteria, each tagged Unit, E2E, Deploy or Manual. PLAN.md turned those into 12 phases, each with "Done when" AC IDs. One commit per phase references the R and AC IDs it delivered, and PLAN.md's table records the status and test-file evidence for every AC.</p></div></details>
+<details id="q5"><summary>What is EARS? Give an example from your spec.</summary><div>
+<p>The Easy Approach to Requirements Syntax: a small set of fixed sentence patterns, such as WHEN (event), IF…THEN (unwanted behaviour), WHILE (state) and WHERE (feature). For example, R19: "IF a user tries to mark a session dated after today as Present THEN THE SYSTEM SHALL refuse." It's testable as written, and AC-15 plus AC-22 test it.</p></div></details>
+<details id="q6"><summary>How did acceptance criteria map to tests?</summary><div>
+<p>Every AC names its type and the requirements it verifies. Each Unit or E2E AC has a test file named in PLAN.md's AC table, for example AC-2 → <code>tests/unit/engine/budget.sweep.test.ts</code> and AC-32 → <code>e2e/isolation.spec.ts</code>. Deploy ACs were checked with <code>curl</code> and the GitHub API against production. Manual ACs were real-device checks I did and recorded with dates.</p></div></details>
+<details id="q7"><summary>Give an example of a spec change and how you handled it.</summary><div>
+<p>Making the midsem date optional (v0.5). I logged it in the changelog and updated:</p>
+<ul>
+  <li>the data model: <code>midsem_date</code> became nullable, through a migration that only relaxes a constraint;</li>
+  <li>R7, R8 and R9;</li>
+  <li>a new R52: removing the midsem date is blocked while split courses exist.</li>
+</ul>
+<p>Then I added AC-48 (unit) and AC-49 (E2E) and ran the full suite before committing. The maths and existing semesters were unchanged, and a test checks that whole-semester results are identical either way. Another change came from deployment itself: Google required a privacy-policy URL, which became R51.</p></div></details>
+
+<h3 id="q-arch">Architecture and routing</h3>
+<details id="q8" data-star><summary><span class="star" aria-label="likely">★</span>Walk me through what happens when I tap "Present".</summary><div>
+<ol>
+  <li><code>MarkControl</code> calls <code>run()</code> in the DataProvider. It validates the change and applies it optimistically with the shared reducer, so the button lights up straight away.</li>
+  <li>It calls the server action <code>mutate()</code>. The server parses the input with zod, gets the user from the JWT, and loads <em>that user's</em> active semester snapshot in one batched Neon round trip.</li>
+  <li>The server validates again (future Present is refused; unknown IDs become "Not found"), applies the same reducer, computes a row diff, and writes it in one batch transaction.</li>
+  <li>On success the change is confirmed. On failure it's rolled back and a Retry toast appears.</li>
+</ol></div></details>
+<details id="q9"><summary>Why Server Actions instead of a REST API?</summary><div>
+<p>They keep the database code on the server with no hand-written endpoints or CORS, and they're typed end to end. One generic <code>mutate()</code> action plus a pure reducer means validation and logic aren't duplicated between client and server. The trade-off: no public API for other clients, which isn't needed for v1.</p></div></details>
+<details id="q10"><summary>How does the demo work without a backend?</summary><div>
+<p>The screens depend only on a <code>Snapshot</code> plus a <code>mutateAction</code> function. Signed in, that function is the server action. In the demo it's a local function that always succeeds, and <code>DemoShell</code> saves each confirmed snapshot to localStorage. The engine and reducer are pure, so the same code runs in both modes. "Reset demo" remounts the provider from the seed.</p></div></details>
+<details id="q11"><summary>How does the app know what "today" is?</summary><div>
+<p>The server decides it: <code>getToday()</code> returns the Asia/Kolkata date (<code>todayIST</code>, with a unit test at the midnight boundary). The engine never reads the clock; today is passed in, and a purity test forbids <code>Date.now()</code> in engine files. E2E tests pin the date with an <code>e2e_today</code> cookie, which works only in test mode. The demo uses a fixed date.</p></div></details>
+
+<h3 id="q-features">Features and code</h3>
+<details id="q12"><summary>How is the trip planner computed?</summary><div>
+<p><code>planTrip()</code> (in <code>engine/trip.ts</code>) works in four steps:</p>
+<ol>
+  <li>Clip the range to <code>[max(from, today), min(to, semester end)]</code>.</li>
+  <li>For each course and window, count <code>m</code>, the unmarked countable classes in that range.</li>
+  <li>Re-run the budget with <code>H+m, A, R−m</code>, which gives the projected best %, skips left and status. Labs in the range would need makeups.</li>
+  <li>Verdict: No-go if any affected window has <code>K &lt; 0</code>; Careful if any ends in warning or danger, or a lab needs a makeup; otherwise Go.</li>
+</ol>
+<p>Nothing is saved, and AC-27 checks that.</p></div></details>
+<details id="q13" data-star><summary><span class="star" aria-label="likely">★</span>How do split windows work? Where does a class on the midsem date go?</summary><div>
+<p>A split course has two windows: midsem <code>[start, midsem]</code>, which <em>includes</em> the midsem date, and endsem <code>[midsem+1, end]</code>. Each session belongs to exactly one window by its date, and each window must meet the requirement on its own. So a great midsem record doesn't carry over: in the SPEC example, endsem at 4/6 says "Attend next 4" even though the whole-semester total would allow 3 skips. Since v0.5 the midsem date is optional; a course can only be split when the date exists, and it can't be removed while split courses exist (R52).</p></div></details>
+<details id="q14"><summary>How do you keep bulk marking all-or-nothing?</summary><div>
+<p>The reducer applies the whole range in memory, and the server writes the resulting row diff with one Neon <code>batch</code>, which runs as a single transaction. If any statement fails, nothing is saved, and the client rolls back its optimistic change. Before confirming, the user sees how many sessions will change and how many existing marks will be overwritten.</p></div></details>
+<details id="q15"><summary>How do shared timetable links work?</summary><div>
+<ul>
+  <li><strong>Publish:</strong> stores a random token of 16 bytes, base64url (128 bits).</li>
+  <li><strong>Share page:</strong> <code>/share/&lt;token&gt;</code> loads only the semester dates, holidays, courses, rules and slots. It never includes marks, the owner's name or email.</li>
+  <li><strong>Import:</strong> copies everything under new UUIDs into a new active semester for the importer, as an independent copy.</li>
+  <li><strong>Revoke:</strong> clears the token, so the link becomes a 404 saying "This link is no longer active". Deleting the account has the same effect.</li>
+</ul></div></details>
+
+<h3 id="q-db">Database and algorithms</h3>
+<details id="q16" data-star><summary><span class="star" aria-label="likely">★</span>Explain the "how many can I skip" formula.</summary><div>
+<p>If you skip <code>k</code> of the <code>R</code> remaining classes, you end the window at <code>(A+R−k)/(H+R)</code>. That passes when <code>100(A+R−k) ≥ p(H+R)</code>, which rearranges to <code>k ≤ K/100</code>, where <code>K = 100(A+R) − p(H+R)</code>. So skips left is <code>S = min(R, floor(K/100))</code>. For example, at 17 out of 20 with 20 left and 80% required, <code>K = 500</code>, so you can skip 5 and finish at exactly 80%.</p></div></details>
+<details id="q17" data-star><summary><span class="star" aria-label="likely">★</span>Why integer arithmetic instead of percentages?</summary><div>
+<p>Floating point and rounding cause wrong answers right at the cut-off. 399/499 is 79.96%, which rounds to "80.0%" but must fail. So every comparison uses integers (<code>100·A ≥ p·H</code>), and the displayed % is truncated (<code>floor(1000A/H)/10</code>), so it never rounds up. SPEC example E13 covers this, and a brute-force sweep of 92,256 cases checks <code>met</code>, <code>S</code> and <code>N</code> against their definitions.</p></div></details>
+<details id="q18"><summary>Why not store a row for every scheduled class?</summary><div>
+<p>Scheduled classes are derived data: weekly slots minus holidays and exams, within the semester and each slot's valid dates. Generating them keeps timetable edits simple: add a holiday and those classes disappear, remove it and they come back. A session row exists only when a scheduled class has a mark, or for an extra class. A mark on a day that later becomes a holiday is kept but ignored (AC-8, AC-24).</p></div></details>
+<details id="q19"><summary>How do you know the maths is correct?</summary><div>
+<p>Three layers:</p>
+<ul>
+  <li>hand-computed worked examples from the SPEC (E1–E14), asserted exactly;</li>
+  <li>a brute-force sweep of every H 0–30, A 0–H, R 0–30 and p in {0, 50, 75, 80, 85, 100}, comparing the closed-form <code>S</code> and <code>N</code> with direct enumeration;</li>
+  <li>E2E tests that compare UI headlines with values the engine computes for each fixture.</li>
+</ul></div></details>
+<details id="q20"><summary>How does the medical cap work?</summary><div>
+<p>Medical counts as attended. If a course has a cap, its countable medical sessions are ordered by date and time across the <em>whole semester</em>. The first <code>cap</code> of them count as attended, and later ones count as absent and are flagged "over cap". With split windows, the cap is used up across both windows in date order (AC-4).</p></div></details>
+
+<h3 id="q-sec">Security and privacy</h3>
+<details id="q21" data-star><summary><span class="star" aria-label="likely">★</span>How do you stop user A from reading or editing user B's data?</summary><div>
+<p>The server never trusts IDs from the browser. Each server action loads only the signed-in user's own active semester (the query is filtered by <code>user_id</code>), validates the change against that snapshot, and writes only rows from its diff. Any ID not in your own snapshot comes back as "Not found". Pages also return 404 for someone else's course. AC-32 proves it: user B gets a 404 on A's course URL, B's replayed request with A's slot ID is refused, and A's data is unchanged.</p></div></details>
+<details id="q22"><summary>How are secrets handled?</summary><div>
+<ul>
+  <li>Four variables: <code>DATABASE_URL</code>, <code>AUTH_SECRET</code>, <code>AUTH_GOOGLE_ID</code>, <code>AUTH_GOOGLE_SECRET</code>.</li>
+  <li>They live only in a gitignored <code>.env.local</code> and in Vercel's environment settings, and nothing secret has a <code>NEXT_PUBLIC_</code> prefix.</li>
+  <li>The database client is imported only from <code>server-only</code> modules.</li>
+  <li>A Playwright test scans every loaded script and all of <code>.next/static</code> for connection strings and secret names (AC-40).</li>
+  <li>The AI assistant was denied reading <code>.env*</code> files and never printed environment values.</li>
+</ul></div></details>
+<details id="q23"><summary>How is the test-only login kept out of production?</summary><div>
+<p><code>isTestMode()</code> is true only if <code>E2E_TEST_AUTH === "1"</code> and the <code>VERCEL</code> variable is unset. Vercel always sets it, so even if someone added the flag there by mistake, test mode would stay off. A unit test covers all three cases (AC-14), and I checked production directly: <code>/api/auth/providers</code> lists only <code>google</code> (AC-42).</p></div></details>
+<details id="q24"><summary>What personal data do you store, and how is it deleted?</summary><div>
+<p>Only Google ID, email and name, plus the attendance data the user enters. Sessions are JWTs, so there are no session tables, no profile photos, no ads, no tracking, and no third-party scripts. Settings → Delete account (type DELETE) deletes the user row, and foreign-key cascades remove every semester, course, mark and share link in one statement. Any other device's session is treated as signed out on its next request. The <code>/privacy</code> page states all of this.</p></div></details>
+<details id="q25"><summary>Any less obvious security measures?</summary><div>
+<ul>
+  <li>The CSV export prefixes cells starting with <code>= + - @</code> with an apostrophe, to stop spreadsheet formula injection.</li>
+  <li>Share tokens are 128-bit random values and are pattern-checked before any query.</li>
+  <li><code>/api/health</code> returns only <code>{ok, db}</code>, never error details.</li>
+  <li>Server Actions are POST-only and checked by Next.js.</li>
+  <li>Every input is zod-validated, with limits such as at most 20 courses per semester.</li>
+</ul></div></details>
+
+<h3 id="q-test">Testing and CI</h3>
+<details id="q26" data-star><summary><span class="star" aria-label="likely">★</span>What's your testing strategy?</summary><div>
+<p>A pyramid tied to the acceptance criteria:</p>
+<ul>
+  <li><strong>115 Vitest unit tests</strong> where correctness matters most: the pure engine, validators, CSV and the demo seed. They include the 92,256-case brute-force check.</li>
+  <li><strong>40 Playwright E2E tests</strong> on a production build with a mobile viewport. They cover every user flow, isolation between users, failure rollback, an axe accessibility audit in both themes, 360 px layout, offline PWA, and a secret scan of the bundle.</li>
+  <li><strong>Deploy checks</strong> against production with <code>curl</code>, and <strong>manual checks</strong> on real phones.</li>
+</ul></div></details>
+<details id="q27"><summary>Why aren't the E2E tests in CI?</summary><div>
+<p>They need a real Postgres database and a test sign-in, and CI was kept secret-free by design (C10): it runs lint, typecheck and unit tests. E2E runs locally against the Neon <code>dev</code> branch, and the build rule was "full suite before every commit". The next step is CI creating a throwaway Neon branch per run.</p></div></details>
+<details id="q28"><summary>How did you test accessibility?</summary><div>
+<p><code>@axe-core/playwright</code> runs on every main screen, including the share and privacy pages, in both dark and light themes. It requires zero colour-contrast violations and zero serious or critical issues. Another test measures that every marking button and nav tab is at least 44×44 px and that there's no horizontal scroll at 360 px. Status is never shown by colour alone; there's always text plus an icon.</p></div></details>
+
+<h3 id="q-scale">Scalability and failure scenarios</h3>
+<details id="q29"><summary>What happens if the database is down or slow?</summary><div>
+<ul>
+  <li><code>/api/health</code> returns 503.</li>
+  <li>Signed-in pages can't render, because the server loads data per request.</li>
+  <li>Saves fail; the optimistic change rolls back and a Retry toast appears (AC-23).</li>
+  <li>The demo and the PWA's cached pages still open.</li>
+</ul>
+<p>Neon's free tier also scales to zero, so the first request after idle is slower; that's an accepted risk (D7).</p></div></details>
+<details id="q30"><summary>What if two devices edit at the same time?</summary><div>
+<p>Each save reloads the user's current data on the server and writes a diff, so different changes merge. If both devices create the same scheduled mark at once, the unique <code>(slot_id, date)</code> index rejects one, and that device gets an error with Retry. There's no live sync: the other device sees the changes on reload.</p></div></details>
+<details id="q31"><summary>What would break first at 10,000 users?</summary><div>
+<p>Per-user data is small (limits such as 20 courses), and each save is one batched read plus one batched write, so the design scales horizontally on serverless. The first limits would be the free tiers (Neon compute hours, Vercel function usage) and cross-region latency to us-east-1. I'd also add rate limiting on server actions and move to paid regions closer to India.</p></div></details>
+
+<h3 id="q-deploy">Deployment and cost</h3>
+<details id="q32"><summary>How is it deployed, and how do migrations run?</summary><div>
+<p>Pushing to <code>main</code> triggers Vercel. Its build runs <code>vercel-build</code>, which does <code>drizzle-kit migrate &amp;&amp; next build</code> using that environment's <code>DATABASE_URL</code>: production uses Neon <code>main</code>, preview uses <code>dev</code>. Migrations are additive only; the v0.5 one just relaxed a NOT NULL and a check constraint. I verified the deploy with the health endpoint and the providers endpoint.</p></div></details>
+<details id="q33"><summary>What does it cost?</summary><div>
+<p>Nothing at this scale: Vercel Hobby, Neon free tier and GitHub Actions minutes are all free, and the spec ruled out paid services and AI APIs. The costs are latency, because the free database sleeps when idle, and region choice.</p></div></details>
+
+<h3 id="q-ai">AI-assisted development</h3>
+<details id="q34" data-star><summary><span class="star" aria-label="likely">★</span>How did you use Claude Code, and how did you verify its work?</summary><div>
+<p>I used it as the builder under a spec I owned.</p>
+<ul>
+  <li><strong>Me:</strong> I wrote the brief, reviewed SPEC.md, and decided the open questions (including the "Can't recover" headline and the Neon branch split). I set the PLAN rules: never push, never read secrets, one commit per phase, stop only if a requirement or AC must change. I did all the [HUMAN] steps.</li>
+  <li><strong>Claude Code:</strong> it built the 12 phases.</li>
+  <li><strong>Verification:</strong> each phase had to pass its AC tests and the full suite before committing. PLAN.md's Build notes log every interpretation it made. I checked the Deploy and Manual ACs myself and reviewed before/after screenshots for the UI polish.</li>
+</ul></div></details>
+<details id="q35"><summary>What did you decide yourself, and what did you delegate?</summary><div>
+<ul>
+  <li><strong>I decided:</strong> scope and rules, the twelve open questions, the region correction, adding the privacy page, the UI polish brief, and making the midsem date optional.</li>
+  <li><strong>I did by hand:</strong> credentials and accounts (Neon, Vercel, Google OAuth) and real-device testing.</li>
+  <li><strong>I delegated:</strong> implementation, tests and documentation, always measured against acceptance criteria I could check.</li>
+</ul></div></details>
+<details id="q36"><summary>Can you give an example where the AI's work needed correcting or a judgment call?</summary><div>
+<p>Yes, three are recorded in the history:</p>
+<ul>
+  <li>the stats fixture forced a reading of "weeks with H = 0 are skipped" as a week's own held count, which went into the Build notes;</li>
+  <li>axe caught invalid list markup, which was fixed;</li>
+  <li>a test race caused a foreign-key error, fixed by waiting for saves.</li>
+</ul>
+<p>When the dev database credentials broke, it stopped and asked me rather than committing without the full suite.</p></div></details>
+
+<h3 id="q-tradeoffs">Trade-offs ("why not X?")</h3>
+<details id="q37"><summary>Why a PWA and not a native app?</summary><div>
+<p>One codebase, nothing to install from a store, an instant demo link for evaluators, and it fits 1–2 days of build time. The installable PWA (manifest, icons, service worker) opens standalone on Android, which a manual check (AC-45) confirmed. Native apps and push notifications were explicit non-goals.</p></div></details>
+<details id="q38"><summary>Why JWT sessions instead of database sessions?</summary><div>
+<p>No adapter tables, so less personal data is stored and there are fewer database round trips. The downside is that a JWT can't be revoked centrally, so <code>getCurrentUser()</code> also checks that the user row still exists. Deleting the account therefore signs out every device on its next request.</p></div></details>
+<details id="q40"><summary>Why Drizzle and Neon rather than Prisma or Firebase?</summary><div>
+<p>Drizzle is a light, typed SQL layer with plain SQL migrations and transactional <code>batch</code> on the Neon HTTP driver, which suits serverless. Prisma is heavier at cold start. Neon gives real Postgres with constraints, cascades and branches (separate dev and main). Firebase's document model would make the relational rules, uniqueness and cascading deletes harder to guarantee.</p></div></details>
+
+<h3 id="q-future">Future work</h3>
+<details id="q39" data-star><summary><span class="star" aria-label="likely">★</span>What would you do next?</summary><div>
+<ol>
+  <li>E2E in CI with a throwaway Neon branch per run.</li>
+  <li>An offline queue for marks, replayed through the same reducer.</li>
+  <li>Optional reminders.</li>
+  <li>Timetable import from the college PDF.</li>
+  <li>Rate limiting and audit logging.</li>
+  <li>A region closer to India.</li>
+</ol>
+<p>I'd write each one as spec requirements and acceptance criteria first, as I did for the privacy page and the optional midsem date.</p></div></details>
+
+<footer>
+  <p>Sources: SPEC.md (v0.5), PLAN.md (AC table and Build notes), README.md and the git history (phase commits P1–P12, the privacy, UI-polish and midsem commits). Live app: <a href="https://bunkometer.vercel.app">bunkometer.vercel.app</a>.</p>
+</footer>
+</div>
+<script>
+  (function () {
+    var all = function () { return Array.prototype.slice.call(document.querySelectorAll("details")); };
+    document.getElementById("open-all").addEventListener("click", function () { all().forEach(function (d) { d.open = true; }); });
+    document.getElementById("close-all").addEventListener("click", function () { all().forEach(function (d) { d.open = false; }); });
+    var stars = document.getElementById("only-stars");
+    stars.addEventListener("click", function () {
+      var on = stars.getAttribute("aria-pressed") !== "true";
+      stars.setAttribute("aria-pressed", String(on));
+      stars.textContent = on ? "Show all questions" : "Show only ★";
+      all().forEach(function (d) { if (d.id && /^q\d+$/.test(d.id)) d.hidden = on && !d.hasAttribute("data-star"); });
+    });
+    // Opening a question from the table of contents expands it.
+    window.addEventListener("hashchange", function () {
+      var el = document.getElementById(location.hash.slice(1));
+      if (el && el.tagName === "DETAILS") el.open = true;
+    });
+  })();
+</script>
+</body>
+</html>
